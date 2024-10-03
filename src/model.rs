@@ -35,8 +35,9 @@ pub struct Master {
     pub servers: Vec<Server>,
 }
 
+
 impl Master {
-    pub fn count_client(&self) -> u32 {
+    pub fn count_clients(&self) -> u32 {
         let mut total = 0;
         for server in self.servers.iter() {
             total += Server::count_client(server);
