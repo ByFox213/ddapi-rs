@@ -8,7 +8,7 @@ license-file = "LICENSE"
 readme = "README.md"
 keywords = ["ddnet"]
 exclude = [
-    "build.sh"
+    "tests.rs"
 ]
 
 [dependencies]
