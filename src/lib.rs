@@ -19,6 +19,7 @@ pub enum MasterServer
 }
 
 impl MasterServer {
+    #[allow(dead_code)]
     fn get_index(&self) -> i32 {
         match &self {
             Self::One => 1,
@@ -30,6 +31,7 @@ impl MasterServer {
 }
 
 
+#[allow(dead_code)]
 trait DDnetApi {
     async fn master(&self, master: MasterServer) -> Result<Master, ApiError>;
     async fn player(&self, player: &str) -> Result<DDPlayer, ApiError>;
@@ -37,6 +39,7 @@ trait DDnetApi {
     async fn map(&self, map: &str) -> Result<DMap, ApiError>;
 }
 
+#[allow(dead_code)]
 trait DDstats {
     async fn splayer(&self, player: &str) -> Result<Player, ApiError>;
 }
@@ -45,6 +48,7 @@ struct DDApi {
     client: Client,
 }
 
+#[allow(dead_code)]
 impl<'a> DDApi {
     pub fn new(client: Client) -> DDApi {
         DDApi { client }

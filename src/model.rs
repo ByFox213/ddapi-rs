@@ -18,6 +18,7 @@ fn default_location() -> String {
     "unknown".to_string()
 }
 
+#[allow(dead_code)]
 pub type Query = Vec<QueryPlayer>;
 
 
@@ -37,6 +38,7 @@ pub struct Master {
 
 
 impl Master {
+    #[allow(dead_code)]
     pub fn count_clients(&self) -> u32 {
         let mut total = 0;
         for server in self.servers.iter() {
@@ -45,6 +47,7 @@ impl Master {
         total as u32
     }
 
+    #[allow(dead_code)]
     pub fn get_clans(&self, rm: Option<Vec<&str>>) -> Vec<(String, usize)> {
         let remove_list: Vec<&str> = rm.unwrap_or(Vec::from(["DD-Persian", "/vDQMHSss8W"]));
 
@@ -56,7 +59,7 @@ impl Master {
         for server in &self.servers {
             if let Some(clients) = &server.info.clients {
                 for client in clients {
-                    if client.clan != "" {
+                    if !client.clan.is_empty() {
                         *dat.entry(client.clan.clone()).or_insert(0) += 1;
                     }
                 }
@@ -85,6 +88,7 @@ pub struct Server {
 }
 
 impl Server {
+    #[allow(dead_code)]
     pub fn count_client(&self) -> usize {
         self.info.clients.as_ref().map_or(0, |clients| clients.len())
     }
