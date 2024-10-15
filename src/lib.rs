@@ -1,5 +1,5 @@
-mod model;
-mod error_ddapi;
+pub mod model;
+pub mod error_ddapi;
 mod tests;
 
 use std::borrow::Cow;
