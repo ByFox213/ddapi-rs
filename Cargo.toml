@@ -1,7 +1,7 @@
 [package]
 name = "ddapi-rs"
 description = "This module is rewritten from another module [ddapi](https://github.com/ByFox213/ddapi)"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 homepage = "https://github.com/ByFox213/ddapi-rs"
 license-file = "LICENSE"
