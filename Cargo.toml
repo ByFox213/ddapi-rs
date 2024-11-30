@@ -9,9 +9,9 @@ readme = "README.md"
 keywords = ["ddnet"]
 
 [dependencies]
-tokio = { version = "1", features = ["full"] }
-reqwest = { version = "0.12.7", features = ["json"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-serde_derive = "1.0.210"
+tokio = { version = "1.41.1", features = ["full"] }
+reqwest = { version = "0.12.9", features = ["json"] }
+serde = { version = "1.0.215", features = ["derive"] }
+serde_json = "1.0.133"
+serde_derive = "1.0.215"
 urlencoding = "2.1.3"

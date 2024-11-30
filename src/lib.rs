@@ -49,9 +49,9 @@ struct DDApi {
     client: Client,
 }
 
-#[allow(dead_code)]
-impl<'a> DDApi {
-    pub fn new(client: Client) -> DDApi {
+
+impl DDApi {
+    pub fn new(client: Client) -> Self {
         DDApi { client }
     }
 
@@ -67,7 +67,7 @@ impl<'a> DDApi {
         Ok(serde_json::from_str(&response)?)
     }
 
-    fn encode_nickname(&self, nickname: &'a str) -> Cow<'a, str> {
+    fn encode_nickname<'a>(&self, nickname: &'a str) -> Cow<'a, str> {
         encode(nickname)
     }
 }
