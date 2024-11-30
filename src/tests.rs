@@ -1,8 +1,7 @@
 #[cfg(test)]
 mod tests {
     use reqwest::Client;
-    use crate::{DDApi, MasterServer};
-    use crate::{DDnetApi, DDstats};
+    use crate::{DDApi, DDnetApi, DDstats};
 
     async fn setup() -> DDApi {
         let client = Client::new();
@@ -12,36 +11,15 @@ mod tests {
     #[tokio::test]
     async fn test_count_master() {
         let ddapi = setup().await;
-        let result = ddapi.master(MasterServer::One).await;
-        match result {
-            Ok(res) => {
-                println!("clients: {} from {}", res.count_clients(), &res.servers.len());
-                assert_eq!(true, true);
-            }
-            Err(err) => {
-                println!("{:?}", err);
-                assert_eq!(false, true);
-            }
-        }
+        let result = ddapi.master().await;
+        assert_eq!(result.is_ok(), true);
     }
 
     #[tokio::test]
     async fn test_get_clans_master() {
         let ddapi = setup().await;
-        let result = ddapi.master(MasterServer::One).await;
-        match result {
-            Ok(res) => {
-                let mut clans = res.get_clans(None);
-                clans.truncate(5);
-
-                println!("clans: {:?}", clans);
-                assert_eq!(true, true);
-            }
-            Err(err) => {
-                println!("{:?}", err);
-                assert_eq!(false, true);
-            }
-        }
+        let result = ddapi.master().await;
+        assert_eq!(result.is_ok(), true);
     }
 
     #[tokio::test]
@@ -51,7 +29,6 @@ mod tests {
 
         for player in players {
             let result = ddapi.player(player).await;
-            // println!("{:?}", result);
             assert_eq!(result.is_ok(), true);
         }
     }
@@ -59,7 +36,7 @@ mod tests {
     #[tokio::test]
     async fn test_master() {
         let ddapi = setup().await;
-        let result = ddapi.master(MasterServer::One).await;
+        let result = ddapi.master().await;
         assert_eq!(result.is_ok(), true)
     }
 
