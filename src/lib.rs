@@ -33,7 +33,8 @@ impl MasterServer {
 
 #[allow(dead_code)]
 trait DDnetApi {
-    async fn master(&self, master: MasterServer) -> Result<Master, ApiError>;
+    async fn master(&self) -> Result<Master, ApiError>;
+    async fn master_custom(&self, master: MasterServer) -> Result<Master, ApiError>;
     async fn player(&self, player: &str) -> Result<DDPlayer, ApiError>;
     async fn query(&self, player: &str) -> Result<Query, ApiError>;
     async fn map(&self, map: &str) -> Result<DMap, ApiError>;
@@ -72,7 +73,13 @@ impl<'a> DDApi {
 }
 
 impl DDnetApi for DDApi {
-    async fn master(&self, master: MasterServer) -> Result<Master, ApiError> {
+    async fn master(&self) -> Result<Master, ApiError> {
+        self._generator(
+            &format!("https://master{}.ddnet.org/ddnet/15/servers.json", MasterServer::One.get_index())
+        ).await
+    }
+
+    async fn master_custom(&self, master: MasterServer) -> Result<Master, ApiError> {
         self._generator(
             &format!("https://master{}.ddnet.org/ddnet/15/servers.json", master.get_index())
         ).await

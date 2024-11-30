@@ -485,10 +485,10 @@ pub struct FavouriteTeammate {
 pub struct Profile {
     pub name: String,
     pub points: u64,
-    pub clan: String,
-    pub country: u64,
+    pub clan: Option<String>,
+    pub country: Option<u64>,
     #[serde(rename = "skin_name")]
-    pub skin_name: String,
+    pub skin_name: Option<String>,
     #[serde(rename = "skin_color_body")]
     pub skin_color_body: Option<i64>,
     #[serde(rename = "skin_color_feet")]
