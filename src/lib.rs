@@ -33,16 +33,16 @@ impl MasterServer {
 
 #[allow(dead_code)]
 pub trait DDnetApi {
-    async fn master(&self) -> Result<Master, ApiError>;
-    async fn master_custom(&self, master: MasterServer) -> Result<Master, ApiError>;
-    async fn player(&self, player: &str) -> Result<DDPlayer, ApiError>;
-    async fn query(&self, player: &str) -> Result<Query, ApiError>;
-    async fn map(&self, map: &str) -> Result<DMap, ApiError>;
+    fn master(&self) -> impl std::future::Future<Output = Result<Master, ApiError>> + Send;
+    fn master_custom(&self, master: MasterServer) -> impl std::future::Future<Output = Result<Master, ApiError>> + Send;
+    fn player(&self, player: &str) -> impl std::future::Future<Output = Result<DDPlayer, ApiError>> + Send;
+    fn query(&self, player: &str) -> impl std::future::Future<Output = Result<Query, ApiError>> + Send;
+    fn map(&self, map: &str) -> impl std::future::Future<Output = Result<DMap, ApiError>> + Send;
 }
 
 #[allow(dead_code)]
 pub trait DDstats {
-    async fn splayer(&self, player: &str) -> Result<Player, ApiError>;
+    fn splayer(&self, player: &str) -> impl std::future::Future<Output = Result<Player, ApiError>> + Send;
 }
 
 pub struct DDApi {
@@ -87,17 +87,17 @@ impl DDnetApi for DDApi {
 
     async fn player(&self, player: &str) -> Result<DDPlayer, ApiError> {
         self._generator(
-            &*format!("https://ddnet.org/players/?json2={}", self.encode_nickname(player))
+            &*format!("https://ddnet.org/players/?json2={}", self.encode_nickname(player).await)
         ).await
     }
     async fn query(&self, player: &str) -> Result<Query, ApiError> {
         self._generator(
-            &*format!("https://ddnet.org/players/?query={}", self.encode_nickname(player))
+            &*format!("https://ddnet.org/players/?query={}", self.encode_nickname(player).await)
         ).await
     }
     async fn map(&self, map: &str) -> Result<DMap, ApiError> {
         self._generator(
-            &*format!("https://ddnet.org/maps/?json={}", self.encode_nickname(map))
+            &*format!("https://ddnet.org/maps/?json={}", self.encode_nickname(map).await)
         ).await
     }
 }
@@ -106,7 +106,7 @@ impl DDnetApi for DDApi {
 impl DDstats for DDApi {
     async fn splayer(&self, player: &str) -> Result<Player, ApiError> {
         self._generator(
-            &*format!("https://ddstats.tw/player/json?player={}", self.encode_nickname(player))
+            &*format!("https://ddstats.tw/player/json?player={}", self.encode_nickname(player).await)
         ).await
     }
 }
