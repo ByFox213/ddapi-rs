@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use reqwest::Client;
     use crate::{DDApi, DDnetApi, DDstats};
+    use reqwest::Client;
 
     async fn setup() -> DDApi {
         let client = Client::new();
@@ -46,7 +46,6 @@ mod tests {
         let result = ddapi.query("ByFox").await;
         assert_eq!(result.is_ok(), true)
     }
-
 
     #[tokio::test]
     async fn test_map() {
