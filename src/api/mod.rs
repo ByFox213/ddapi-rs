@@ -31,3 +31,9 @@ impl DDApi {
         Ok(serde_json::from_str(&response)?)
     }
 }
+
+impl Default for DDApi {
+    fn default() -> Self {
+        Self::new()
+    }
+}

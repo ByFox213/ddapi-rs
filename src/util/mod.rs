@@ -1,2 +1,2 @@
-pub mod time;
 pub mod encoding;
+pub mod time;

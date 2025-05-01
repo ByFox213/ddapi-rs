@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use crate::api::DDApi;
     use crate::api::ddnet::DDnetApi;
     #[cfg(feature = "ddstats")]
     use crate::api::ddstats::DDstats;
+    use crate::api::DDApi;
 
     const PLAYERS: [&str; 3] = ["ByFox", "ban+eblan", "Gazebr"];
     const PLAYER: &str = "ByFox";

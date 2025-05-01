@@ -35,7 +35,7 @@ where
             }
 
             let datetime: DateTime<Utc> =
-                DateTime::from_timestamp(value, 0).unwrap_or_else(|| Utc::now());
+                DateTime::from_timestamp(value, 0).unwrap_or_else(Utc::now);
             Ok(datetime.naive_utc())
         }
 
@@ -49,7 +49,7 @@ where
             }
 
             let datetime: DateTime<Utc> =
-                DateTime::from_timestamp(timestamp, 0).unwrap_or_else(|| Utc::now());
+                DateTime::from_timestamp(timestamp, 0).unwrap_or_else(Utc::now);
             Ok(datetime.naive_utc())
         }
     }

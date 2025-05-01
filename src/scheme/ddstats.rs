@@ -29,11 +29,11 @@ impl Player {
     pub fn url(&self) -> String {
         format!("https://ddstats.tw/player/{}", encode(&self.profile.name))
     }
-    
+
     pub fn url_with_name(player: &str) -> String {
         format!("https://ddstats.tw/player/{}", encode(player))
     }
-    
+
     pub fn api(player: &str) -> String {
         format!("https://ddstats.tw/player/json?player={}", encode(player))
     }
@@ -99,7 +99,7 @@ impl StatsMap {
     pub fn url_with_name(map: &str) -> String {
         format!("https://ddstats.tw/map/{}", encode(&slugify2(map)))
     }
-    
+
     pub fn api() -> String {
         "https://ddstats.tw/maps/json".to_string()
     }
