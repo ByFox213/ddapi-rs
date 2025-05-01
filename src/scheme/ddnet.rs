@@ -1,4 +1,5 @@
 use crate::scheme::{deserialize_datetime_timestamp, serialize_datetime_timestamp};
+use crate::util::encoding::{encode, slugify2};
 use chrono::NaiveDateTime;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
@@ -7,14 +8,92 @@ fn default_location() -> String {
     "unknown".to_string()
 }
 
-#[allow(dead_code)]
-pub type Query = Vec<QueryPlayer>;
+pub enum MasterServer {
+    One,
+    Two,
+    Three,
+    Four,
+}
+
+impl MasterServer {
+    fn get_index(&self) -> i32 {
+        match &self {
+            Self::One => 1,
+            Self::Two => 2,
+            Self::Three => 3,
+            Self::Four => 4,
+        }
+    }
+}
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct QueryPlayer {
+pub struct Query {
     pub points: i64,
     pub name: String,
+}
+
+impl Query {
+    pub fn api(player: &str) -> String {
+        format!("https://ddnet.org/players/?query={}", encode(player))
+    }
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ReleasesMaps {
+    pub name: String,
+    pub website: String,
+    pub thumbnail: String,
+    pub web_preview: String,
+    pub r#type: String,
+    pub points: u8,
+    pub difficulty: u8,
+    pub mapper: String,
+    pub release: String,
+    pub width: u64,
+    pub height: u64,
+    pub tiles: Vec<String>,
+}
+
+impl ReleasesMaps {
+    pub fn api() -> String {
+        "https://ddnet.org/releases/maps.json".to_string()
+    }
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct StatusData {
+    pub name: String,
+    pub r#type: String,
+    pub host: String,
+    pub location: String,
+    pub online4: bool,
+    pub online6: bool,
+    pub uptime: String,
+    pub load: f32,
+    pub network_rx: u64,
+    pub network_tx: u64,
+    pub packets_rx: u64,
+    pub packets_tx: u64,
+    pub cpu: u32,
+    pub memory_total: u64,
+    pub memory_used: u64,
+    pub swap_total: u64,
+    pub swap_used: u64,
+    pub hdd_total: u64,
+    pub hdd_used: u64,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Status {
+    pub servers: Vec<StatusData>,
+    pub updated: String,
+}
+
+impl Status {
+    pub fn api() -> String {
+        "https://ddnet.org/status/json/stats.json".to_string()
+    }
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -24,13 +103,23 @@ pub struct Master {
 }
 
 impl Master {
-    #[allow(dead_code)]
+    pub fn api(master: MasterServer) -> String {
+        format!(
+            "https://master{}.ddnet.org/ddnet/15/servers.json",
+            master.get_index()
+        )
+    }
+
     pub fn count_clients(&self) -> usize {
         self.servers.iter().map(Server::count_client).sum()
     }
 
-    #[allow(dead_code)]
-    pub fn get_clans(&self, rm: Option<Vec<&str>>) -> Vec<(String, usize)> {
+    pub fn get_clans(&self) -> Vec<(String, usize)> {
+        self.get_clans_with_custom_rm(None)
+    }
+
+    // TODO: Create structure
+    pub fn get_clans_with_custom_rm(&self, rm: Option<Vec<&str>>) -> Vec<(String, usize)> {
         let remove_list: HashSet<&str> = rm
             .unwrap_or_else(|| vec!["DD-Persian", "/vDQMHSss8W"])
             .into_iter()
@@ -152,14 +241,27 @@ pub struct Player {
     pub hours_played_past_365_days: i64,
 }
 
+impl Player {
+    pub fn url(&self) -> String {
+        format!("https://ddnet.org/players/{}", encode(&slugify2(&self.player)))
+    }
+
+    pub fn url_with_name(player: &str) -> String {
+        format!("https://ddnet.org/players/{}", encode(&slugify2(player)))
+    }
+
+    pub fn api(player: &str) -> String {
+        format!("https://ddnet.org/players/?json2={}", encode(player))
+    }
+}
+
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Map {
     pub name: String,
     pub website: String,
     pub thumbnail: String,
     pub web_preview: String,
-    #[serde(rename = "type")]
-    pub type_field: String,
+    pub r#type: String,
     pub points: i64,
     pub difficulty: i64,
     pub mapper: String,
@@ -176,6 +278,20 @@ pub struct Map {
     pub team_ranks: Vec<DTeamRank>,
     pub ranks: Vec<DRank>,
     pub max_finishes: Vec<MaxFinish>,
+}
+
+impl Map {
+    pub fn url(&self) -> String {
+        format!("https://ddnet.org/maps/{}", encode(&slugify2(&self.name)))
+    }
+
+    pub fn url_with_name(map: &str) -> String {
+        format!("https://ddnet.org/maps/{}", encode(&slugify2(map)))
+    }
+    
+    pub fn api(map: &str) -> String {
+        format!("https://ddnet.org/maps/?json={}", encode(map))
+    }
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]

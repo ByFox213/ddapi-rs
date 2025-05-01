@@ -1,7 +1,7 @@
+use crate::api::DDApi;
+use crate::errors::ApiError;
+use crate::scheme::ddnet::*;
 use std::future::Future;
-use crate::error_ddapi::ApiError;
-use crate::{DDApi, MasterServer};
-use crate::scheme::ddnet::{Player, Map, Master, Query};
 
 #[allow(dead_code)]
 pub trait DDnetApi {
@@ -10,15 +10,11 @@ pub trait DDnetApi {
         &self,
         master: MasterServer,
     ) -> impl Future<Output = Result<Master, ApiError>> + Send;
-    fn player(
-        &self,
-        player: &str,
-    ) -> impl Future<Output = Result<Player, ApiError>> + Send;
-    fn query(
-        &self,
-        player: &str,
-    ) -> impl Future<Output = Result<Query, ApiError>> + Send;
+    fn player(&self, player: &str) -> impl Future<Output = Result<Player, ApiError>> + Send;
+    fn query(&self, player: &str) -> impl Future<Output = Result<Vec<Query>, ApiError>> + Send;
     fn map(&self, map: &str) -> impl Future<Output = Result<Map, ApiError>> + Send;
+    fn releases_map(&self) -> impl Future<Output = Result<Vec<ReleasesMaps>, ApiError>> + Send;
+    fn status(&self) -> impl Future<Output = Result<Status, ApiError>> + Send;
 }
 
 impl DDnetApi for DDApi {
@@ -27,32 +23,24 @@ impl DDnetApi for DDApi {
     }
 
     async fn custom_master(&self, master: MasterServer) -> Result<Master, ApiError> {
-        self._generator(&format!(
-            "https://master{}.ddnet.org/ddnet/15/servers.json",
-            master.get_index()
-        ))
-            .await
+        self._generator(&Master::api(master)).await
     }
 
     async fn player(&self, player: &str) -> Result<Player, ApiError> {
-        self._generator(&format!(
-            "https://ddnet.org/players/?json2={}",
-            self.encode(player).await
-        ))
-            .await
+        self._generator(&Player::api(player)).await
     }
-    async fn query(&self, player: &str) -> Result<Query, ApiError> {
-        self._generator(&format!(
-            "https://ddnet.org/players/?query={}",
-            self.encode(player).await
-        ))
-            .await
+    async fn query(&self, player: &str) -> Result<Vec<Query>, ApiError> {
+        self._generator(&Query::api(player)).await
     }
+
     async fn map(&self, map: &str) -> Result<Map, ApiError> {
-        self._generator(&format!(
-            "https://ddnet.org/maps/?json={}",
-            self.encode(map).await
-        ))
-            .await
+        self._generator(&Map::api(map)).await
+    }
+    async fn releases_map(&self) -> Result<Vec<ReleasesMaps>, ApiError> {
+        self._generator(&ReleasesMaps::api()).await
+    }
+
+    async fn status(&self) -> Result<Status, ApiError> {
+        self._generator(&Status::api()).await
     }
 }

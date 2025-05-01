@@ -1,7 +1,6 @@
+use crate::util::encoding::{encode, slugify2};
 use crate::util::time::seconds_to_hours;
 use serde_derive::{Deserialize, Serialize};
-
-pub type Maps = Vec<StatsMap>;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Player {
@@ -24,6 +23,20 @@ pub struct Player {
     pub favourite_rank1s_teammates: Vec<FavouriteRank1sTeammates>,
     pub all_top_10s: Vec<AllTop10>,
     pub recent_top_10s: Vec<RecentTop10>,
+}
+
+impl Player {
+    pub fn url(&self) -> String {
+        format!("https://ddstats.tw/player/{}", encode(&self.profile.name))
+    }
+    
+    pub fn url_with_name(player: &str) -> String {
+        format!("https://ddstats.tw/player/{}", encode(player))
+    }
+    
+    pub fn api(player: &str) -> String {
+        format!("https://ddstats.tw/player/json?player={}", encode(player))
+    }
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -78,6 +91,20 @@ pub struct StatsMap {
     pub timestamp: Option<String>,
 }
 
+impl StatsMap {
+    pub fn url(&self) -> String {
+        format!("https://ddstats.tw/map/{}", encode(&slugify2(&self.map)))
+    }
+
+    pub fn url_with_name(map: &str) -> String {
+        format!("https://ddstats.tw/map/{}", encode(&slugify2(map)))
+    }
+    
+    pub fn api() -> String {
+        "https://ddstats.tw/maps/json".to_string()
+    }
+}
+
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct FavouriteTeammate {
     pub name: String,
@@ -93,6 +120,12 @@ pub struct Profile {
     pub skin_name: Option<String>,
     pub skin_color_body: Option<i64>,
     pub skin_color_feet: Option<i64>,
+}
+
+impl Profile {
+    pub fn api(player: &str) -> String {
+        format!("https://ddstats.tw/profile/json?player={}", encode(player))
+    }
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -317,4 +350,10 @@ pub struct Map {
     pub team_rankings: Vec<TeamRankingSMap>,
     pub time_cps: Vec<TimeCpsSMap>,
     pub playtime: Vec<PlaytimeSMap>,
+}
+
+impl Map {
+    pub fn api(map: &str) -> String {
+        format!("https://ddstats.tw/map/json?map={}", encode(map))
+    }
 }
