@@ -1,20 +1,21 @@
-use reqwest::Error;
+use reqwest::Error as ReqwestError;
+use serde_json::Error as JsonError;
 
 #[allow(dead_code)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ApiError {
-    ReqwestError(Error),
-    JsonError(serde_json::Error),
+    ReqwestError(String),
+    JsonError(String),
 }
 
-impl From<Error> for ApiError {
-    fn from(err: Error) -> Self {
-        ApiError::ReqwestError(err)
+impl From<ReqwestError> for ApiError {
+    fn from(err: ReqwestError) -> Self {
+        ApiError::ReqwestError(err.to_string())
     }
 }
 
-impl From<serde_json::Error> for ApiError {
-    fn from(err: serde_json::Error) -> Self {
-        ApiError::JsonError(err)
+impl From<JsonError> for ApiError {
+    fn from(err: JsonError) -> Self {
+        ApiError::JsonError(err.to_string())
     }
 }

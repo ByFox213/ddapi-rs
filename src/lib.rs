@@ -1,6 +1,7 @@
 pub mod api;
 pub mod error_ddapi;
 pub mod scheme;
+pub mod util;
 mod tests;
 
 use error_ddapi::ApiError;
@@ -38,7 +39,7 @@ impl DDApi {
         DDApi { client }
     }
 
-    pub fn new_client(client: Client) -> Self {
+    pub fn new_with_client(client: Client) -> Self {
         DDApi { client }
     }
 
@@ -54,7 +55,7 @@ impl DDApi {
         Ok(serde_json::from_str(&response)?)
     }
 
-    pub async fn encode_nickname<'a>(&self, nickname: &'a str) -> Cow<'a, str> {
+    pub async fn encode<'a>(&self, nickname: &'a str) -> Cow<'a, str> {
         encode(nickname)
     }
 }
