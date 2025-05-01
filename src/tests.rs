@@ -2,6 +2,7 @@
 mod tests {
     use crate::api::DDApi;
     use crate::api::ddnet::DDnetApi;
+    #[cfg(feature = "ddstats")]
     use crate::api::ddstats::DDstats;
 
     const PLAYERS: [&str; 3] = ["ByFox", "ban+eblan", "Gazebr"];
@@ -56,6 +57,7 @@ mod tests {
 
     // ddstats
     #[tokio::test]
+    #[cfg(feature = "ddstats")]
     async fn test_s_player() {
         let ddapi = DDApi::new();
         for player in &PLAYERS {
@@ -65,6 +67,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg(feature = "ddstats")]
     async fn test_s_maps() {
         let ddapi = DDApi::new();
         let result = ddapi.s_maps().await;
@@ -72,6 +75,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg(feature = "ddstats")]
     async fn test_s_profile() {
         let ddapi = DDApi::new();
         let result = ddapi.s_profile(PLAYER).await;
@@ -79,6 +83,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg(feature = "ddstats")]
     async fn test_s_map() {
         let ddapi = DDApi::new();
         let result = ddapi.s_map(MAP).await;

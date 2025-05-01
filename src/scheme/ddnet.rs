@@ -96,6 +96,12 @@ impl Status {
     }
 }
 
+#[derive(Default, Debug, Clone)]
+pub struct ClansCount {
+    pub name: String,
+    pub count: usize,
+}
+
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Master {
@@ -114,12 +120,11 @@ impl Master {
         self.servers.iter().map(Server::count_client).sum()
     }
 
-    pub fn get_clans(&self) -> Vec<(String, usize)> {
+    pub fn get_clans(&self) -> Vec<ClansCount> {
         self.get_clans_with_custom_rm(None)
     }
 
-    // TODO: Create structure
-    pub fn get_clans_with_custom_rm(&self, rm: Option<Vec<&str>>) -> Vec<(String, usize)> {
+    pub fn get_clans_with_custom_rm(&self, rm: Option<Vec<&str>>) -> Vec<ClansCount> {
         let remove_list: HashSet<&str> = rm
             .unwrap_or_else(|| vec!["DD-Persian", "/vDQMHSss8W"])
             .into_iter()
@@ -146,8 +151,12 @@ impl Master {
             dat.remove(clan);
         }
 
-        let mut sorted_dat: Vec<_> = dat.into_iter().collect();
-        sorted_dat.sort_by(|&(_, count1), &(_, count2)| count2.cmp(&count1));
+        let mut sorted_dat: Vec<ClansCount> = dat
+            .into_iter()
+            .map(|(name, count)| ClansCount { name, count })
+            .collect();
+
+        sorted_dat.sort_by(|a, b| b.count.cmp(&a.count));
         sorted_dat
     }
 }
@@ -243,7 +252,10 @@ pub struct Player {
 
 impl Player {
     pub fn url(&self) -> String {
-        format!("https://ddnet.org/players/{}", encode(&slugify2(&self.player)))
+        format!(
+            "https://ddnet.org/players/{}",
+            encode(&slugify2(&self.player))
+        )
     }
 
     pub fn url_with_name(player: &str) -> String {
@@ -288,7 +300,7 @@ impl Map {
     pub fn url_with_name(map: &str) -> String {
         format!("https://ddnet.org/maps/{}", encode(&slugify2(map)))
     }
-    
+
     pub fn api(map: &str) -> String {
         format!("https://ddnet.org/maps/?json={}", encode(map))
     }

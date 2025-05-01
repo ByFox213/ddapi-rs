@@ -1,9 +1,13 @@
+#[cfg(feature = "ddstats")]
 use crate::api::DDApi;
+#[cfg(feature = "ddstats")]
 use crate::errors::ApiError;
+#[cfg(feature = "ddstats")]
 use crate::scheme::ddstats::*;
+#[cfg(feature = "ddstats")]
 use std::future::Future;
 
-#[allow(dead_code)]
+#[cfg(feature = "ddstats")]
 pub trait DDstats {
     fn s_player(&self, player: &str) -> impl Future<Output = Result<Player, ApiError>> + Send;
     fn s_map(&self, map: &str) -> impl Future<Output = Result<Map, ApiError>> + Send;
@@ -11,6 +15,7 @@ pub trait DDstats {
     fn s_profile(&self, player: &str) -> impl Future<Output = Result<Profile, ApiError>> + Send;
 }
 
+#[cfg(feature = "ddstats")]
 impl DDstats for DDApi {
     async fn s_player(&self, player: &str) -> Result<Player, ApiError> {
         self._generator(&Player::api(player)).await

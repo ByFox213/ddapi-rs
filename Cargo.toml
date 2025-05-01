@@ -1,12 +1,12 @@
 [package]
 name = "ddapi-rs"
 description = "This module is rewritten from another module [ddapi](https://github.com/ByFox213/ddapi)"
-version = "0.2.0"
+version = "0.4.0"
 edition = "2021"
 repository = "https://github.com/ByFox213/ddapi-rs"
 license = "MIT"
 readme = "README.md"
-keywords = ["ddnet"]
+keywords = ["ddnet", "ddstats", "api"]
 
 [dependencies]
 tokio = { version = "1.41.1", features = ["full"] }
@@ -16,3 +16,6 @@ serde_json = "1.0.133"
 serde_derive = "1.0.215"
 urlencoding = "2.1.3"
 chrono = "0.4.41"
+
+[features]
+ddstats = []
