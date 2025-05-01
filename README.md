@@ -3,7 +3,7 @@ ddapi is an api from the ddnet and qwik website
 ## Installation
 
 ```bash
-  cargo add ddapi-rs
+  cargo add ddapi-rs -F ddstats
 ```
 
 ## Usage/Examples
