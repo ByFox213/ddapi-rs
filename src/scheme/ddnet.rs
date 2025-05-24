@@ -27,6 +27,31 @@ impl MasterServer {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct QueryMapper {
+    pub mapper: String,
+    pub num_maps: i64,
+}
+
+impl QueryMapper {
+    pub fn api(player: &str) -> String {
+        format!("https://ddnet.org/maps/?qmapper={}", encode(player))
+    }
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct QueryMap {
+    pub name: String,
+    pub r#type: String,
+    pub mapper: String,
+}
+
+impl QueryMap {
+    pub fn api(player: &str) -> String {
+        format!("https://ddnet.org/maps/?query={}", encode(player))
+    }
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Query {
     pub points: i64,
@@ -50,12 +75,17 @@ pub struct ReleasesMaps {
     pub difficulty: u8,
     pub mapper: String,
     pub release: String,
-    pub width: u64,
-    pub height: u64,
+    pub width: Option<u64>,
+    pub height: Option<u64>,
+    #[serde(default)]
     pub tiles: Vec<String>,
 }
 
 impl ReleasesMaps {
+    pub fn url() -> String {
+        "https://ddnet.org/releases".to_string()
+    }
+
     pub fn api() -> String {
         "https://ddnet.org/releases/maps.json".to_string()
     }
@@ -91,6 +121,10 @@ pub struct Status {
 }
 
 impl Status {
+    pub fn url() -> String {
+        "https://ddnet.org/status".to_string()
+    }
+
     pub fn api() -> String {
         "https://ddnet.org/status/json/stats.json".to_string()
     }
@@ -244,7 +278,8 @@ pub struct Player {
     pub favorite_server: FavoriteServer,
     pub first_finish: FirstFinish,
     pub last_finishes: Vec<LastFinish>,
-    pub favorite_partners: Option<Vec<FavoritePartner>>,
+    #[serde(default)]
+    pub favorite_partners: Vec<FavoritePartner>,
     pub types: Types,
     pub activity: Vec<Activity>,
     pub hours_played_past_365_days: i64,

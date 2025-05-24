@@ -123,6 +123,14 @@ pub struct Profile {
 }
 
 impl Profile {
+    pub fn url(&self) -> String {
+        format!("https://ddstats.tw/player/{}", encode(&self.name))
+    }
+
+    pub fn url_with_name(player: &str) -> String {
+        format!("https://ddstats.tw/player/{}", encode(player))
+    }
+    
     pub fn api(player: &str) -> String {
         format!("https://ddstats.tw/profile/json?player={}", encode(player))
     }
@@ -353,6 +361,13 @@ pub struct Map {
 }
 
 impl Map {
+    pub fn url(&self) -> String {
+        format!("https://ddstats.tw/map/{}", encode(&self.info.map.map))
+    }
+
+    pub fn url_with_name(map: &str) -> String {
+        format!("https://ddstats.tw/map/{}", encode(map))
+    }
     pub fn api(map: &str) -> String {
         format!("https://ddstats.tw/map/json?map={}", encode(map))
     }

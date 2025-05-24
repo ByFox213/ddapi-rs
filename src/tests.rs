@@ -7,6 +7,7 @@ mod tests {
 
     const PLAYERS: [&str; 3] = ["ByFox", "ban+eblan", "Gazebr"];
     const PLAYER: &str = "ByFox";
+    const PLAYER_MAPPER: &str = "Gazebr";
     const MAP: &str = "Multeasymap";
 
     // ddnet
@@ -31,6 +32,20 @@ mod tests {
     async fn test_query() {
         let ddapi = DDApi::new();
         let result = ddapi.query(PLAYER).await;
+        assert_eq!(result.is_ok(), true)
+    }
+    
+    #[tokio::test]
+    async fn test_query_map() {
+        let ddapi = DDApi::new();
+        let result = ddapi.query_map(PLAYER).await;
+        assert_eq!(result.is_ok(), true)
+    }
+    
+    #[tokio::test]
+    async fn test_query_mapper() {
+        let ddapi = DDApi::new();
+        let result = ddapi.query_mapper(PLAYER_MAPPER).await;
         assert_eq!(result.is_ok(), true)
     }
 

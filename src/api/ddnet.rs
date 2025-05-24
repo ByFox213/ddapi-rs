@@ -12,6 +12,14 @@ pub trait DDnetApi {
     ) -> impl Future<Output = Result<Master, ApiError>> + Send;
     fn player(&self, player: &str) -> impl Future<Output = Result<Player, ApiError>> + Send;
     fn query(&self, player: &str) -> impl Future<Output = Result<Vec<Query>, ApiError>> + Send;
+    fn query_map(
+        &self,
+        player: &str,
+    ) -> impl Future<Output = Result<Vec<QueryMap>, ApiError>> + Send;
+    fn query_mapper(
+        &self,
+        player: &str,
+    ) -> impl Future<Output = Result<Vec<QueryMapper>, ApiError>> + Send;
     fn map(&self, map: &str) -> impl Future<Output = Result<Map, ApiError>> + Send;
     fn releases_map(&self) -> impl Future<Output = Result<Vec<ReleasesMaps>, ApiError>> + Send;
     fn status(&self) -> impl Future<Output = Result<Status, ApiError>> + Send;
@@ -31,6 +39,14 @@ impl DDnetApi for DDApi {
     }
     async fn query(&self, player: &str) -> Result<Vec<Query>, ApiError> {
         self._generator(&Query::api(player)).await
+    }
+
+    async fn query_map(&self, player: &str) -> Result<Vec<QueryMap>, ApiError> {
+        self._generator(&QueryMap::api(player)).await
+    }
+
+    async fn query_mapper(&self, player: &str) -> Result<Vec<QueryMapper>, ApiError> {
+        self._generator(&QueryMapper::api(player)).await
     }
 
     async fn map(&self, map: &str) -> Result<Map, ApiError> {
