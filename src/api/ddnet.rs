@@ -6,6 +6,7 @@ use std::future::Future;
 #[allow(dead_code)]
 pub trait DDnetApi {
     fn master(&self) -> impl Future<Output = Result<Master, ApiError>> + Send;
+    fn skins(&self) -> impl Future<Output = Result<DDSkins, ApiError>> + Send;
     fn custom_master(
         &self,
         master: MasterServer,
@@ -28,6 +29,10 @@ pub trait DDnetApi {
 impl DDnetApi for DDApi {
     async fn master(&self) -> Result<Master, ApiError> {
         self.custom_master(MasterServer::One).await
+    }
+    
+    async fn skins(&self) -> Result<DDSkins, ApiError> {
+        self._generator(&DDSkins::api()).await
     }
 
     async fn custom_master(&self, master: MasterServer) -> Result<Master, ApiError> {

@@ -69,6 +69,13 @@ mod tests {
         let result = ddapi.status().await;
         assert_eq!(result.is_ok(), true)
     }
+    
+    #[tokio::test]
+    async fn test_skins() {
+        let ddapi = DDApi::new();
+        let result = ddapi.skins().await;
+        assert_eq!(result.is_ok(), true)
+    }
 
     // ddstats
     #[tokio::test]
