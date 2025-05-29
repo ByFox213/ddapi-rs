@@ -34,14 +34,14 @@ mod tests {
         let result = ddapi.query(PLAYER).await;
         assert_eq!(result.is_ok(), true)
     }
-    
+
     #[tokio::test]
     async fn test_query_map() {
         let ddapi = DDApi::new();
         let result = ddapi.query_map(PLAYER).await;
         assert_eq!(result.is_ok(), true)
     }
-    
+
     #[tokio::test]
     async fn test_query_mapper() {
         let ddapi = DDApi::new();
@@ -69,7 +69,7 @@ mod tests {
         let result = ddapi.status().await;
         assert_eq!(result.is_ok(), true)
     }
-    
+
     #[tokio::test]
     async fn test_skins() {
         let ddapi = DDApi::new();

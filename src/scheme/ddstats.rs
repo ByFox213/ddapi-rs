@@ -130,7 +130,7 @@ impl Profile {
     pub fn url_with_name(player: &str) -> String {
         format!("https://ddstats.tw/player/{}", encode(player))
     }
-    
+
     pub fn api(player: &str) -> String {
         format!("https://ddstats.tw/profile/json?player={}", encode(player))
     }

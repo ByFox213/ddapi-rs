@@ -30,7 +30,7 @@ impl DDnetApi for DDApi {
     async fn master(&self) -> Result<Master, ApiError> {
         self.custom_master(MasterServer::One).await
     }
-    
+
     async fn skins(&self) -> Result<DDSkins, ApiError> {
         self._generator(&DDSkins::api()).await
     }
