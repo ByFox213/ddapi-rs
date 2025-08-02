@@ -3,9 +3,6 @@ use serde::de::{self, Visitor};
 use serde::{Deserializer, Serializer};
 use std::fmt;
 
-pub mod ddnet;
-pub mod ddstats;
-
 fn serialize_datetime_timestamp<S>(date: &NaiveDateTime, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
@@ -56,3 +53,9 @@ where
 
     deserializer.deserialize_any(NaiveDateTimeVisitor)
 }
+
+#[cfg(feature = "ddnet")]
+pub mod ddnet;
+
+#[cfg(feature = "ddstats")]
+pub mod ddstats;

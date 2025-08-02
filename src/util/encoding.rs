@@ -1,21 +1,30 @@
 use std::borrow::Cow;
 use std::fmt::Write;
 
-pub fn slugify2(nickname: &str) -> Cow<str> {
-    let slugify2_symbols = "\t !\"#$%&'()*-/<=>?@[\\]^_`{|},.:+";
+const SLUGIFY_SYMBOLS: &str = "\t !\"#$%&'()*-/<=>?@[\\]^_`{|},.:+";
+
+pub fn slugify2(nickname: &str) -> Cow<'_, str> {
+    if !nickname.chars().any(|c| SLUGIFY_SYMBOLS.contains(c) || c.is_ascii()) {
+        return Cow::Borrowed(nickname);
+    }
+
     let mut result = String::with_capacity(nickname.len() * 4);
 
-    for symbol in nickname.chars() {
-        if slugify2_symbols.contains(symbol) || symbol as u32 >= 128 {
-            write!(&mut result, "-{}-", symbol as u32).unwrap();
+    for c in nickname.chars() {
+        if SLUGIFY_SYMBOLS.contains(c) || !c.is_ascii() {
+            write!(&mut result, "-{}-", c as u32).unwrap();
         } else {
-            result.push(symbol);
+            result.push(c);
         }
     }
 
     Cow::Owned(result)
 }
 
-pub fn encode(nickname: &str) -> Cow<str> {
-    urlencoding::encode(nickname)
+pub fn encode(nickname: &str) -> Cow<'_, str> {
+    if nickname.chars().all(|c| c.is_ascii() && !c.is_ascii_control()) {
+        Cow::Borrowed(nickname)
+    } else {
+        urlencoding::encode(nickname)
+    }
 }

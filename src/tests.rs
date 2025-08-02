@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod tests {
+    #[cfg(feature = "ddnet")]
     use crate::api::ddnet::DDnetApi;
     #[cfg(feature = "ddstats")]
     use crate::api::ddstats::DDstats;
@@ -12,6 +13,7 @@ mod tests {
 
     // ddnet
     #[tokio::test]
+    #[cfg(feature = "ddnet")]
     async fn test_players() {
         let ddapi = DDApi::new();
 
@@ -22,6 +24,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg(feature = "ddnet")]
     async fn test_master() {
         let ddapi = DDApi::new();
         let result = ddapi.master().await;
@@ -29,6 +32,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg(feature = "ddnet")]
     async fn test_query() {
         let ddapi = DDApi::new();
         let result = ddapi.query(PLAYER).await;
@@ -36,6 +40,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg(feature = "ddnet")]
     async fn test_query_map() {
         let ddapi = DDApi::new();
         let result = ddapi.query_map(PLAYER).await;
@@ -43,6 +48,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg(feature = "ddnet")]
     async fn test_query_mapper() {
         let ddapi = DDApi::new();
         let result = ddapi.query_mapper(PLAYER_MAPPER).await;
@@ -50,6 +56,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg(feature = "ddnet")]
     async fn test_map() {
         let ddapi = DDApi::new();
         let result = ddapi.map(MAP).await;
@@ -57,6 +64,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg(feature = "ddnet")]
     async fn test_releases_map() {
         let ddapi = DDApi::new();
         let result = ddapi.releases_map().await;
@@ -64,6 +72,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg(feature = "ddnet")]
     async fn test_status() {
         let ddapi = DDApi::new();
         let result = ddapi.status().await;
@@ -71,6 +80,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg(feature = "ddnet")]
     async fn test_skins() {
         let ddapi = DDApi::new();
         let result = ddapi.skins().await;

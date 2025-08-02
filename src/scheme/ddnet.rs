@@ -4,9 +4,8 @@ use chrono::NaiveDateTime;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
-fn default_location() -> String {
-    "unknown".to_string()
-}
+const DEFAULT_LOCATION: &str = "unknown";
+const DEFAULT_CLAN_FILTERS: [&str; 2] = ["DD-Persian", "/vDQMHSss8W"];
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DDSkinHD {
@@ -39,21 +38,21 @@ impl DDSkins {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum MasterServer {
-    One,
-    Two,
-    Three,
-    Four,
+    One = 1,
+    Two = 2,
+    Three = 3,
+    Four = 4,
 }
 
 impl MasterServer {
-    fn get_index(&self) -> i32 {
-        match &self {
-            Self::One => 1,
-            Self::Two => 2,
-            Self::Three => 3,
-            Self::Four => 4,
-        }
+    pub fn get_index(&self) -> i32 {
+        *self as i32
+    }
+
+    pub fn api(&self) -> String {
+        format!("https://master{}.ddnet.org/ddnet/15/servers.json", self.get_index())
     }
 }
 
@@ -162,7 +161,7 @@ impl Status {
 }
 
 #[derive(Default, Debug, Clone)]
-pub struct ClansCount {
+pub struct ClanCount {
     pub name: String,
     pub count: usize,
 }
@@ -175,54 +174,44 @@ pub struct Master {
 
 impl Master {
     pub fn api(master: MasterServer) -> String {
-        format!(
-            "https://master{}.ddnet.org/ddnet/15/servers.json",
-            master.get_index()
-        )
+        master.api()
     }
 
     pub fn count_clients(&self) -> usize {
-        self.servers.iter().map(Server::count_client).sum()
+        self.servers.iter().map(|s| s.info.clients.len()).sum()
     }
 
-    pub fn get_clans(&self) -> Vec<ClansCount> {
-        self.get_clans_with_custom_rm(None)
+    pub fn get_clans(&self) -> Vec<ClanCount> {
+        self.get_filtered_clans(None)
     }
 
-    pub fn get_clans_with_custom_rm(&self, rm: Option<Vec<&str>>) -> Vec<ClansCount> {
-        let remove_list: HashSet<&str> = rm
-            .unwrap_or_else(|| vec!["DD-Persian", "/vDQMHSss8W"])
-            .into_iter()
-            .collect();
-
+    pub fn get_filtered_clans(&self, filters: Option<Vec<&str>>) -> Vec<ClanCount> {
         if self.servers.is_empty() {
-            return vec![];
+            return Vec::new();
         }
 
-        let mut dat: HashMap<String, usize> = HashMap::new();
-
-        self.servers.iter().for_each(|server| {
-            server
-                .info
-                .clients
-                .iter()
-                .filter(|client| !client.clan.is_empty())
-                .for_each(|client| {
-                    *dat.entry(client.clan.clone()).or_insert(0) += 1;
-                });
-        });
-
-        for clan in remove_list {
-            dat.remove(clan);
-        }
-
-        let mut sorted_dat: Vec<ClansCount> = dat
+        let filter_set: HashSet<&str> = filters
+            .unwrap_or_else(|| DEFAULT_CLAN_FILTERS.to_vec())
             .into_iter()
-            .map(|(name, count)| ClansCount { name, count })
             .collect();
 
-        sorted_dat.sort_by(|a, b| b.count.cmp(&a.count));
-        sorted_dat
+        let mut clan_counts = HashMap::new();
+
+        for server in &self.servers {
+            for client in &server.info.clients {
+                if !client.clan.is_empty() && !filter_set.contains(client.clan.as_str()) {
+                    *clan_counts.entry(client.clan.clone()).or_insert(0) += 1;
+                }
+            }
+        }
+
+        let mut result: Vec<ClanCount> = clan_counts
+            .into_iter()
+            .map(|(name, count)| ClanCount { name, count })
+            .collect();
+
+        result.sort_by(|a, b| b.count.cmp(&a.count));
+        result
     }
 }
 
@@ -510,4 +499,8 @@ pub struct DDMap {
 pub struct Activity {
     pub date: String,
     pub hours_played: i64,
+}
+
+fn default_location() -> String {
+    DEFAULT_LOCATION.to_string()
 }

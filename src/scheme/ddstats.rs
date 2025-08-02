@@ -2,6 +2,8 @@ use crate::util::encoding::{encode, slugify2};
 use crate::util::time::seconds_to_hours;
 use serde_derive::{Deserialize, Serialize};
 
+const BASE_URL: &str = "https://ddstats.tw";
+
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Player {
     pub points_graph: Vec<PointsGraph>,
@@ -27,15 +29,15 @@ pub struct Player {
 
 impl Player {
     pub fn url(&self) -> String {
-        format!("https://ddstats.tw/player/{}", encode(&self.profile.name))
+        format!("{}/player/{}", BASE_URL, encode(&self.profile.name))
     }
 
     pub fn url_with_name(player: &str) -> String {
-        format!("https://ddstats.tw/player/{}", encode(player))
+        format!("{}/player/{}", BASE_URL, encode(player))
     }
 
     pub fn api(player: &str) -> String {
-        format!("https://ddstats.tw/player/json?player={}", encode(player))
+        format!("{}/player/json?player={}", BASE_URL, encode(player))
     }
 }
 
@@ -93,15 +95,15 @@ pub struct StatsMap {
 
 impl StatsMap {
     pub fn url(&self) -> String {
-        format!("https://ddstats.tw/map/{}", encode(&slugify2(&self.map)))
+        format!("{}/map/{}", BASE_URL, encode(&slugify2(&self.map)))
     }
 
     pub fn url_with_name(map: &str) -> String {
-        format!("https://ddstats.tw/map/{}", encode(&slugify2(map)))
+        format!("{}/map/{}", BASE_URL, encode(&slugify2(map)))
     }
 
     pub fn api() -> String {
-        "https://ddstats.tw/maps/json".to_string()
+        format!("{}/maps/json", BASE_URL)
     }
 }
 
@@ -124,15 +126,15 @@ pub struct Profile {
 
 impl Profile {
     pub fn url(&self) -> String {
-        format!("https://ddstats.tw/player/{}", encode(&self.name))
+        format!("{}/player/{}", BASE_URL, encode(&self.name))
     }
 
     pub fn url_with_name(player: &str) -> String {
-        format!("https://ddstats.tw/player/{}", encode(player))
+        format!("{}/player/{}", BASE_URL, encode(player))
     }
 
     pub fn api(player: &str) -> String {
-        format!("https://ddstats.tw/profile/json?player={}", encode(player))
+        format!("{}/profile/json?player={}", BASE_URL, encode(player))
     }
 }
 
@@ -251,11 +253,11 @@ pub struct GeneralActivity {
 
 impl GeneralActivity {
     pub fn total_seconds_played_to_hours(&self) -> f64 {
-        seconds_to_hours(self.total_seconds_played)
+        seconds_to_hours(self.total_seconds_played as f64)
     }
 
     pub fn average_seconds_played_to_hours(&self) -> f64 {
-        seconds_to_hours(self.average_seconds_played)
+        seconds_to_hours(self.average_seconds_played as f64)
     }
 }
 
@@ -362,13 +364,13 @@ pub struct Map {
 
 impl Map {
     pub fn url(&self) -> String {
-        format!("https://ddstats.tw/map/{}", encode(&self.info.map.map))
+        format!("{}/map/{}", BASE_URL, encode(&self.info.map.map))
     }
 
     pub fn url_with_name(map: &str) -> String {
-        format!("https://ddstats.tw/map/{}", encode(map))
+        format!("{}/map/{}", BASE_URL, encode(map))
     }
     pub fn api(map: &str) -> String {
-        format!("https://ddstats.tw/map/json?map={}", encode(map))
+        format!("{}/map/json?map={}", BASE_URL, encode(map))
     }
 }
