@@ -52,7 +52,10 @@ impl MasterServer {
     }
 
     pub fn api(&self) -> String {
-        format!("https://master{}.ddnet.org/ddnet/15/servers.json", self.get_index())
+        format!(
+            "https://master{}.ddnet.org/ddnet/15/servers.json",
+            self.get_index()
+        )
     }
 }
 

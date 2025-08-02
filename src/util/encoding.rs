@@ -4,7 +4,10 @@ use std::fmt::Write;
 const SLUGIFY_SYMBOLS: &str = "\t !\"#$%&'()*-/<=>?@[\\]^_`{|},.:+";
 
 pub fn slugify2(nickname: &str) -> Cow<'_, str> {
-    if !nickname.chars().any(|c| SLUGIFY_SYMBOLS.contains(c) || c.is_ascii()) {
+    if !nickname
+        .chars()
+        .any(|c| SLUGIFY_SYMBOLS.contains(c) || c.is_ascii())
+    {
         return Cow::Borrowed(nickname);
     }
 
@@ -22,7 +25,10 @@ pub fn slugify2(nickname: &str) -> Cow<'_, str> {
 }
 
 pub fn encode(nickname: &str) -> Cow<'_, str> {
-    if nickname.chars().all(|c| c.is_ascii() && !c.is_ascii_control()) {
+    if nickname
+        .chars()
+        .all(|c| c.is_ascii() && !c.is_ascii_control())
+    {
         Cow::Borrowed(nickname)
     } else {
         urlencoding::encode(nickname)
