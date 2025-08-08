@@ -23,36 +23,36 @@ impl DDnetApi for DDApi {
     }
 
     async fn skins(&self) -> Result<DDSkins> {
-        self._generator(&DDSkins::api()).await
+        self._generator(&DDSkins::api(), false).await
     }
 
     async fn custom_master(&self, master: MasterServer) -> Result<Master> {
-        self._generator(&Master::api(master)).await
+        self._generator(&Master::api(master), false).await
     }
 
     async fn player(&self, player: &str) -> Result<Player> {
-        self._generator(&Player::api(player)).await
+        self._generator(&Player::api(player), true).await
     }
     async fn query(&self, player: &str) -> Result<Vec<Query>> {
-        self._generator(&Query::api(player)).await
+        self._generator(&Query::api(player), true).await
     }
 
     async fn query_map(&self, player: &str) -> Result<Vec<QueryMap>> {
-        self._generator(&QueryMap::api(player)).await
+        self._generator(&QueryMap::api(player), true).await
     }
 
     async fn query_mapper(&self, player: &str) -> Result<Vec<QueryMapper>> {
-        self._generator(&QueryMapper::api(player)).await
+        self._generator(&QueryMapper::api(player), true).await
     }
 
     async fn map(&self, map: &str) -> Result<Map> {
-        self._generator(&Map::api(map)).await
+        self._generator(&Map::api(map), true).await
     }
     async fn releases_map(&self) -> Result<Vec<ReleasesMaps>> {
-        self._generator(&ReleasesMaps::api()).await
+        self._generator(&ReleasesMaps::api(), false).await
     }
 
     async fn status(&self) -> Result<Status> {
-        self._generator(&Status::api()).await
+        self._generator(&Status::api(), false).await
     }
 }

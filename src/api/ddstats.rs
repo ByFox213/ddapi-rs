@@ -12,18 +12,18 @@ pub trait DDstats {
 
 impl DDstats for DDApi {
     async fn s_player(&self, player: &str) -> Result<Player> {
-        self._generator(&Player::api(player)).await
+        self._generator(&Player::api(player), true).await
     }
 
     async fn s_map(&self, map: &str) -> Result<Map> {
-        self._generator(&Map::api(map)).await
+        self._generator(&Map::api(map), true).await
     }
 
     async fn s_maps(&self) -> Result<Vec<StatsMap>> {
-        self._generator(&StatsMap::api()).await
+        self._generator(&StatsMap::api(), false).await
     }
 
     async fn s_profile(&self, player: &str) -> Result<Profile> {
-        self._generator(&Profile::api(player)).await
+        self._generator(&Profile::api(player), true).await
     }
 }
