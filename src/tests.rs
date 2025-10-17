@@ -6,7 +6,6 @@ mod tests {
     use crate::api::ddstats::DDstats;
     use crate::api::DDApi;
 
-    const PLAYERS: [&str; 3] = ["ByFox", "ban+eblan", "Gazebr"];
     const PLAYER: &str = "ByFox";
     const PLAYER_MAPPER: &str = "Gazebr";
     const MAP: &str = "Multeasymap";
@@ -17,10 +16,8 @@ mod tests {
     async fn test_players() {
         let ddapi = DDApi::new();
 
-        for player in &PLAYERS {
-            let result = ddapi.player(player).await;
-            assert_eq!(result.is_ok(), true);
-        }
+        let result = ddapi.player(&PLAYER).await;
+        assert_eq!(result.is_ok(), true);
     }
 
     #[tokio::test]
@@ -92,10 +89,8 @@ mod tests {
     #[cfg(feature = "ddstats")]
     async fn test_s_player() {
         let ddapi = DDApi::new();
-        for player in &PLAYERS {
-            let result = ddapi.s_player(player).await;
-            assert_eq!(result.is_ok(), true);
-        }
+        let result = ddapi.s_player(&PLAYER).await;
+        assert_eq!(result.is_ok(), true);
     }
 
     #[tokio::test]

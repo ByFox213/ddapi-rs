@@ -1,7 +1,8 @@
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use moka::future::Cache;
 use reqwest::Client;
 use serde::de::DeserializeOwned;
+use crate::error::ApiError;
 
 #[derive(Clone, Default)]
 pub struct DDApi {
@@ -79,11 +80,11 @@ impl DDApi {
         match &self.cache {
             Some(cache) => {
                 if let Some(value) = cache.get(&cache_key).await {
-                    serde_json::from_str(&value).context("Failed to parse CACHE response")
+                    self.parse_response::<T>(&value)
                 } else {
                     let response_text = self.send_request(uri).await?;
                     cache.insert(cache_key, response_text.clone()).await;
-                    serde_json::from_str(&response_text).context("Failed to parse API response")
+                    self.parse_response::<T>(&response_text)
                 }
             }
             None => self._generator_no_cache(uri).await,
@@ -95,7 +96,23 @@ impl DDApi {
         T: DeserializeOwned,
     {
         let response_text = self.send_request(uri).await?;
-        serde_json::from_str(&response_text).context("Failed to parse API response")
+        self.parse_response::<T>(&response_text)
+    }
+
+    fn parse_response<T>(&self, response_text: &str) -> Result<T>
+    where
+        T: DeserializeOwned,
+    {
+        if let Ok(error_response) = serde_json::from_str::<serde_json::Value>(response_text) {
+            if let Some(error_msg) = error_response.get("error").and_then(|e| e.as_str()) {
+                return match error_msg.to_lowercase().as_str() {
+                    "player not found" => Err(anyhow::Error::from(ApiError::NotFound)),
+                    _ => Err(anyhow!(error_msg.to_string())),
+                };
+            }
+        }
+
+        serde_json::from_str(response_text).map_err(Into::into)
     }
 }
 
