@@ -43,9 +43,7 @@ impl DDApi {
             .get(uri)
             .send()
             .await
-            .context("Failed to send request")?
-            .error_for_status()
-            .context("Server returned error status")?;
+            .context("Failed to send request")?;
 
         let text = response
             .text()
