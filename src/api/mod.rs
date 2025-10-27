@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Context, Result};
+#[cfg(feature = "cache")]
 use moka::future::Cache;
 use reqwest::Client;
 use serde::de::DeserializeOwned;
@@ -7,6 +8,7 @@ use crate::error::ApiError;
 #[derive(Clone, Default)]
 pub struct DDApi {
     client: Client,
+    #[cfg(feature = "cache")]
     cache: Option<Cache<String, String>>,
 }
 
@@ -14,6 +16,7 @@ impl DDApi {
     pub fn new() -> Self {
         DDApi {
             client: Client::new(),
+            #[cfg(feature = "cache")]
             cache: None,
         }
     }
@@ -21,6 +24,7 @@ impl DDApi {
     pub fn new_with_client(client: Client) -> Self {
         DDApi {
             client,
+            #[cfg(feature = "cache")]
             cache: None,
         }
     }
@@ -57,17 +61,22 @@ impl DDApi {
         Ok(text)
     }
 
+    #[allow(unused_variables)]
     pub async fn _generator<T>(&self, uri: &str, cache: bool) -> Result<T>
     where
         T: DeserializeOwned + Send + Sync + 'static,
     {
+        #[cfg(feature = "cache")]
         if cache {
             self._generator_cached(uri).await
         } else {
             self._generator_no_cache(uri).await
         }
+        #[cfg(not(feature = "cache"))]
+        self._generator_no_cache(uri).await
     }
 
+    #[cfg(feature = "cache")]
     async fn _generator_cached<T>(&self, uri: &str) -> Result<T>
     where
         T: DeserializeOwned + Send + Sync + 'static,

@@ -1,10 +1,6 @@
 #[cfg(test)]
 mod tests {
-    #[cfg(feature = "ddnet")]
-    use crate::api::ddnet::DDnetApi;
-    #[cfg(feature = "ddstats")]
-    use crate::api::ddstats::DDstats;
-    use crate::api::DDApi;
+    use crate::prelude::*;
 
     const PLAYER: &str = "ByFox";
     const PLAYER_MAPPER: &str = "Gazebr";
