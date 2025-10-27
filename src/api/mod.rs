@@ -1,4 +1,5 @@
 use crate::error::ApiError;
+#[allow(unused_imports)]
 use anyhow::{anyhow, Context, Result};
 #[cfg(feature = "cache")]
 use moka::future::Cache;
