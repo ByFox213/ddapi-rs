@@ -1,9 +1,9 @@
+use crate::error::ApiError;
 use anyhow::{anyhow, Context, Result};
 #[cfg(feature = "cache")]
 use moka::future::Cache;
 use reqwest::Client;
 use serde::de::DeserializeOwned;
-use crate::error::ApiError;
 
 #[derive(Clone, Default)]
 pub struct DDApi {
@@ -110,6 +110,14 @@ impl DDApi {
     where
         T: DeserializeOwned,
     {
+        // ddnet
+        #[cfg(feature = "ddnet")]
+        if response_text == "{}" {
+            return Err(anyhow::Error::from(ApiError::NotFound));
+        }
+
+        // ddstats
+        #[cfg(feature = "ddstats")]
         if let Ok(error_response) = serde_json::from_str::<serde_json::Value>(response_text) {
             if let Some(error_msg) = error_response.get("error").and_then(|e| e.as_str()) {
                 return match error_msg.to_lowercase().as_str() {

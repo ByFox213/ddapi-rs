@@ -1,12 +1,12 @@
 pub mod api;
+pub mod error;
 pub mod scheme;
 mod tests;
 pub mod util;
-pub mod error;
 
 pub mod prelude {
-    pub use crate::util::*;
     pub use crate::api::DDApi;
+    pub use crate::util::*;
 
     #[cfg(feature = "ddnet")]
     pub use crate::api::ddnet::DDnetApi;
