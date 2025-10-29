@@ -1,6 +1,6 @@
 [package]
 name = "ddapi-rs"
-description = "This module is rewritten from another module [ddapi](https://github.com/ByFox213/ddapi)"
+description = "A simple Rust library to get data from DDNet and DDStats APIs"
 version = "0.7.3"
 edition = "2021"
 repository = "https://github.com/ByFox213/ddapi-rs"
