@@ -6,7 +6,7 @@ pub mod util;
 
 pub mod prelude {
     pub use crate::api::DDApi;
-    pub use crate::util::*;
+    pub use crate::util::prelude::*;
 
     #[cfg(feature = "ddnet")]
     pub use crate::api::ddnet::DDnetApi;
