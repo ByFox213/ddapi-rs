@@ -37,8 +37,8 @@ impl DDnetApi for DDApi {
         self._generator(&Query::api(player), true).await
     }
 
-    async fn query_map(&self, player: &str) -> Result<Vec<QueryMap>> {
-        self._generator(&QueryMap::api(player), true).await
+    async fn query_map(&self, map: &str) -> Result<Vec<QueryMap>> {
+        self._generator(&QueryMap::api(map), true).await
     }
 
     async fn query_mapper(&self, player: &str) -> Result<Vec<QueryMapper>> {

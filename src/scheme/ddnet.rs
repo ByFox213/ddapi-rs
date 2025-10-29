@@ -79,8 +79,8 @@ pub struct QueryMap {
 }
 
 impl QueryMap {
-    pub fn api(player: &str) -> String {
-        format!("https://ddnet.org/maps/?query={}", encode(player))
+    pub fn api(map: &str) -> String {
+        format!("https://ddnet.org/maps/?query={}", encode(map))
     }
 }
 
