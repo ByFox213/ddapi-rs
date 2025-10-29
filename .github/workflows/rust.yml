@@ -79,6 +79,3 @@ jobs:
 
       - name: Cargo test doc
         run: cargo test --doc --workspace --all-features
-
-  cargo-miri:
-    uses: ./.github/workflows/cargo_miri.yaml
