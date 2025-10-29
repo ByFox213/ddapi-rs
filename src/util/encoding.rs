@@ -35,9 +35,9 @@ const NON_ASCII_CHARACTER_THRESHOLD: u32 = 128;
 /// assert_eq!(slugify2("Test_Player"), "Test-95-Player");
 /// ```
 pub fn slugify2(nickname: &str) -> Cow<'_, str> {
-    let needs_processing = nickname.chars().any(|c| {
-        SLUGIFY2_SYMBOLS.contains(c) || (c as u32) >= NON_ASCII_CHARACTER_THRESHOLD
-    });
+    let needs_processing = nickname
+        .chars()
+        .any(|c| SLUGIFY2_SYMBOLS.contains(c) || (c as u32) >= NON_ASCII_CHARACTER_THRESHOLD);
 
     if !needs_processing {
         return Cow::Borrowed(nickname);
@@ -92,13 +92,10 @@ pub fn slugify2(nickname: &str) -> Cow<'_, str> {
 /// assert_eq!(encode("a b"), "a%20b");
 /// ```
 pub fn encode(nickname: &str) -> Cow<'_, str> {
-    if nickname.chars().all(|c| {
-        c.is_ascii_alphanumeric() ||
-            c == '-' ||
-            c == '_' ||
-            c == '.' ||
-            c == '~'
-    }) {
+    if nickname
+        .chars()
+        .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_' || c == '.' || c == '~')
+    {
         Cow::Borrowed(nickname)
     } else {
         urlencoding::encode(nickname)
