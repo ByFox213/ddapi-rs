@@ -170,8 +170,15 @@ pub struct ClanCount {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Icon {
+    pub sha256: String,
+    pub url: String,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Master {
+    pub communities: Vec<Community>,
     pub servers: Vec<Server>,
 }
 
@@ -221,6 +228,7 @@ impl Master {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Server {
     pub addresses: Vec<String>,
+    pub community: Option<String>,
     #[serde(default = "default_location")]
     pub location: String,
     pub info: Info,
@@ -248,7 +256,6 @@ pub struct Info {
     pub clients: Vec<Client>,
     #[serde(default)]
     pub requires_login: bool,
-    pub community: Option<Community>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -283,10 +290,10 @@ pub struct Skin {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Community {
     pub id: String,
-    pub icon: String,
-    pub admin: Vec<String>,
-    pub public_key: Option<String>,
-    pub signature: Option<String>,
+    pub name: String,
+    pub has_finishes: bool,
+    pub icon: Icon,
+    pub contact_urls: Vec<String>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
