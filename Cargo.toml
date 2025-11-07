@@ -9,7 +9,7 @@ readme = "README.md"
 keywords = ["ddnet", "ddstats", "api"]
 
 [dependencies]
-tokio = { version = "1.41.1", features = ["macros"] }
+tokio = "1.48.0"
 reqwest = { version = "0.12.9", features = ["json"] }
 serde = { version = "1.0.215", features = ["derive"] }
 serde_json = "1.0.133"
@@ -19,9 +19,36 @@ chrono = "0.4.41"
 anyhow = "1.0.98"
 moka = { version = "0.12.10", features = ["log", "future"], optional = true }
 
+[dev-dependencies]
+tokio = { version = "1.48.0", features = ["macros"] }
+
 [features]
 default = ["ddnet"]
 ddnet = []
 ddstats = []
 cache = ["dep:moka"]
 full = ["ddnet", "ddstats", "cache"]
+
+[package.metadata.docs.rs]
+all-features = true
+
+[profile.dev]
+opt-level = 0
+debug = true
+strip = "none"
+debug-assertions = true
+overflow-checks = true
+lto = false
+incremental = true
+codegen-units = 256
+rpath = false
+
+[profile.release]
+opt-level = 3
+debug = false
+lto = true
+codegen-units = 24
+strip = true
+incremental = true
+debug-assertions = true
+overflow-checks = true
