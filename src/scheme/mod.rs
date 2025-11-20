@@ -3,6 +3,12 @@ use serde::de::{self, Visitor};
 use serde::{Deserializer, Serializer};
 use std::fmt;
 
+#[cfg(feature = "ddnet")]
+const DDNET_BASE_URL: &str = "ddnet.org";
+
+#[cfg(feature = "ddstats")]
+const DDSTATS_BASE_URL: &str = "ddstats.tw";
+
 fn serialize_datetime_timestamp<S>(date: &NaiveDateTime, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,

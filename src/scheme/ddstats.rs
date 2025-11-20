@@ -1,8 +1,6 @@
-use crate::util::encoding::{encode, slugify2};
-use crate::util::time::seconds_to_hours;
+use crate::scheme::DDSTATS_BASE_URL;
+use crate::util::prelude::{encode, seconds_to_hours, slugify2};
 use serde_derive::{Deserialize, Serialize};
-
-const BASE_URL: &str = "https://ddstats.tw";
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Player {
@@ -29,15 +27,23 @@ pub struct Player {
 
 impl Player {
     pub fn url(&self) -> String {
-        format!("{}/player/{}", BASE_URL, encode(&self.profile.name))
+        format!(
+            "https://{}/player/{}",
+            DDSTATS_BASE_URL,
+            encode(&self.profile.name)
+        )
     }
 
     pub fn url_with_name(player: &str) -> String {
-        format!("{}/player/{}", BASE_URL, encode(player))
+        format!("https://{}/player/{}", DDSTATS_BASE_URL, encode(player))
     }
 
     pub fn api(player: &str) -> String {
-        format!("{}/player/json?player={}", BASE_URL, encode(player))
+        format!(
+            "https://{}/player/json?player={}",
+            DDSTATS_BASE_URL,
+            encode(player)
+        )
     }
 }
 
@@ -95,15 +101,23 @@ pub struct StatsMap {
 
 impl StatsMap {
     pub fn url(&self) -> String {
-        format!("{}/map/{}", BASE_URL, encode(&slugify2(&self.map)))
+        format!(
+            "https://{}/map/{}",
+            DDSTATS_BASE_URL,
+            encode(&slugify2(&self.map))
+        )
     }
 
     pub fn url_with_name(map: &str) -> String {
-        format!("{}/map/{}", BASE_URL, encode(&slugify2(map)))
+        format!(
+            "https://{}/map/{}",
+            DDSTATS_BASE_URL,
+            encode(&slugify2(map))
+        )
     }
 
     pub fn api() -> String {
-        format!("{}/maps/json", BASE_URL)
+        format!("https://{}/maps/json", DDSTATS_BASE_URL)
     }
 }
 
@@ -126,15 +140,19 @@ pub struct Profile {
 
 impl Profile {
     pub fn url(&self) -> String {
-        format!("{}/player/{}", BASE_URL, encode(&self.name))
+        format!("https://{}/player/{}", DDSTATS_BASE_URL, encode(&self.name))
     }
 
     pub fn url_with_name(player: &str) -> String {
-        format!("{}/player/{}", BASE_URL, encode(player))
+        format!("https://{}/player/{}", DDSTATS_BASE_URL, encode(player))
     }
 
     pub fn api(player: &str) -> String {
-        format!("{}/profile/json?player={}", BASE_URL, encode(player))
+        format!(
+            "https://{}/profile/json?player={}",
+            DDSTATS_BASE_URL,
+            encode(player)
+        )
     }
 }
 
@@ -364,13 +382,18 @@ pub struct Map {
 
 impl Map {
     pub fn url(&self) -> String {
-        format!("{}/map/{}", BASE_URL, encode(&self.info.map.map))
+        format!(
+            "https://{}/map/{}",
+            DDSTATS_BASE_URL,
+            encode(&self.info.map.map)
+        )
     }
 
     pub fn url_with_name(map: &str) -> String {
-        format!("{}/map/{}", BASE_URL, encode(map))
+        format!("https://{}/map/{}", DDSTATS_BASE_URL, encode(map))
     }
+
     pub fn api(map: &str) -> String {
-        format!("{}/map/json?map={}", BASE_URL, encode(map))
+        format!("https://{}/map/json?map={}", DDSTATS_BASE_URL, encode(map))
     }
 }

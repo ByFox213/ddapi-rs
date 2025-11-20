@@ -1,5 +1,5 @@
 use crate::api::DDApi;
-use crate::scheme::ddnet::*;
+use crate::scheme::ddnet::prelude::*;
 use anyhow::Result;
 use std::future::Future;
 
@@ -35,6 +35,23 @@ impl DDnetApi for DDApi {
         self.custom_master(MasterServer::One).await
     }
 
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// use ddapi_rs::prelude::*;
+    /// use ddapi_rs::prelude::ddnet::*;
+    ///
+    /// let api = DDApi::new();
+    /// let skins: DDSkins = api.skins().await?;
+    /// println!("Found {} available skins", skins.skins.len());
+    /// for skin in skins.skins {
+    ///     println!("Skin: {} by {}", skin.name, skin.creator);
+    /// }
+    /// ```
+    async fn skins(&self) -> Result<DDSkins> {
+        self._generator(&DDSkins::api()).await
+    }
+
     /// Fetches server list from a specific master server
     ///
     /// Allows selecting which master server to query. DDNet has multiple
@@ -56,23 +73,6 @@ impl DDnetApi for DDApi {
     /// ```
     async fn custom_master(&self, master: MasterServer) -> Result<Master> {
         self._generator_no_cache(&Master::api(master)).await
-    }
-
-    /// # Examples
-    ///
-    /// ```rust,ignore
-    /// use ddapi_rs::prelude::*;
-    /// use ddapi_rs::prelude::ddnet::*;
-    ///
-    /// let api = DDApi::new();
-    /// let skins: DDSkins = api.skins().await?;
-    /// println!("Found {} available skins", skins.skins.len());
-    /// for skin in skins.skins {
-    ///     println!("Skin: {} by {}", skin.name, skin.creator);
-    /// }
-    /// ```
-    async fn skins(&self) -> Result<DDSkins> {
-        self._generator(&DDSkins::api()).await
     }
 
     /// # Examples

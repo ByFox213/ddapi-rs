@@ -1,8 +1,8 @@
-pub mod api;
-pub mod error;
-pub mod scheme;
+mod api;
+mod error;
+mod scheme;
 mod tests;
-pub mod util;
+mod util;
 
 pub mod prelude {
     pub use crate::api::DDApi;
@@ -17,7 +17,7 @@ pub mod prelude {
     #[cfg(feature = "ddnet")]
     pub mod ddnet {
         pub use crate::api::ddnet::*;
-        pub use crate::scheme::ddnet::*;
+        pub use crate::scheme::ddnet::prelude::*;
     }
 
     #[cfg(feature = "ddstats")]

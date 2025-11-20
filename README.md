@@ -31,3 +31,5 @@ async fn main() {
 # Features
 - ddstats - Get data from ddstats.tw
 - ddnet - Get data from ddnet.org
+- cache - Memory cache
+- full - All features
