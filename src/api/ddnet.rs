@@ -15,6 +15,11 @@ pub trait DDnetApi {
     fn map(&self, map: &str) -> impl Future<Output = Result<Map>> + Send;
     fn releases_map(&self) -> impl Future<Output = Result<Vec<ReleasesMaps>>> + Send;
     fn status(&self) -> impl Future<Output = Result<Status>> + Send;
+    fn latest_finish(&self) -> impl Future<Output = Result<Vec<LatestFinishes>>> + Send;
+    fn latest_finish_with_latest(
+        &self,
+        latest: usize,
+    ) -> impl Future<Output = Result<Vec<LatestFinishes>>> + Send;
 }
 
 impl DDnetApi for DDApi {
@@ -181,5 +186,13 @@ impl DDnetApi for DDApi {
     /// ```
     async fn status(&self) -> Result<Status> {
         self._generator_no_cache(&Status::api()).await
+    }
+
+    async fn latest_finish(&self) -> Result<Vec<LatestFinishes>> {
+        self.latest_finish_with_latest(0).await
+    }
+
+    async fn latest_finish_with_latest(&self, latest: usize) -> Result<Vec<LatestFinishes>> {
+        self._generator_no_cache(&LatestFinishes::api(latest)).await
     }
 }

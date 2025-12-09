@@ -80,6 +80,14 @@ mod tests {
         assert_eq!(result.is_ok(), true)
     }
 
+    #[tokio::test]
+    #[cfg(feature = "ddnet")]
+    async fn test_latest_finishes() {
+        let ddapi = DDApi::new();
+        let result = ddapi.latest_finish().await;
+        assert_eq!(result.is_ok(), true)
+    }
+
     // ddstats
     #[tokio::test]
     #[cfg(feature = "ddstats")]

@@ -1,3 +1,4 @@
+mod latest_finishes;
 mod map;
 mod master;
 mod player;
@@ -9,6 +10,7 @@ mod skins;
 mod status;
 
 pub mod prelude {
+    pub use crate::scheme::ddnet::latest_finishes::*;
     pub use crate::scheme::ddnet::map::*;
     pub use crate::scheme::ddnet::master::*;
     pub use crate::scheme::ddnet::player::*;
