@@ -14,7 +14,7 @@ pub struct Map {
     pub difficulty: i64,
     pub mapper: String,
     pub release: Option<f64>,
-    pub median_time: f64,
+    pub average_time: f64,
     pub first_finish: f64,
     pub last_finish: f64,
     pub finishes: i64,
