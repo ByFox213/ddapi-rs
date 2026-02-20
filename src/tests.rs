@@ -13,7 +13,7 @@ mod tests {
         let ddapi = DDApi::new();
 
         let result = ddapi.player(&PLAYER).await;
-        assert_eq!(result.is_ok(), true);
+        assert!(result.is_ok());
     }
 
     #[tokio::test]
@@ -21,7 +21,7 @@ mod tests {
     async fn test_master() {
         let ddapi = DDApi::new();
         let result = ddapi.master().await;
-        assert_eq!(result.is_ok(), true)
+        assert!(result.is_ok())
     }
 
     #[tokio::test]
@@ -29,7 +29,7 @@ mod tests {
     async fn test_query() {
         let ddapi = DDApi::new();
         let result = ddapi.query(PLAYER).await;
-        assert_eq!(result.is_ok(), true)
+        assert!(result.is_ok())
     }
 
     #[tokio::test]
@@ -37,7 +37,7 @@ mod tests {
     async fn test_query_map() {
         let ddapi = DDApi::new();
         let result = ddapi.query_map(PLAYER).await;
-        assert_eq!(result.is_ok(), true)
+        assert!(result.is_ok())
     }
 
     #[tokio::test]
@@ -45,7 +45,7 @@ mod tests {
     async fn test_query_mapper() {
         let ddapi = DDApi::new();
         let result = ddapi.query_mapper(PLAYER_MAPPER).await;
-        assert_eq!(result.is_ok(), true)
+        assert!(result.is_ok())
     }
 
     #[tokio::test]
@@ -53,7 +53,7 @@ mod tests {
     async fn test_map() {
         let ddapi = DDApi::new();
         let result = ddapi.map(MAP).await;
-        assert_eq!(result.is_ok(), true)
+        assert!(result.is_ok())
     }
 
     #[tokio::test]
@@ -61,7 +61,7 @@ mod tests {
     async fn test_releases_map() {
         let ddapi = DDApi::new();
         let result = ddapi.releases_map().await;
-        assert_eq!(result.is_ok(), true)
+        assert!(result.is_ok())
     }
 
     #[tokio::test]
@@ -69,7 +69,7 @@ mod tests {
     async fn test_status() {
         let ddapi = DDApi::new();
         let result = ddapi.status().await;
-        assert_eq!(result.is_ok(), true)
+        assert!(result.is_ok())
     }
 
     #[tokio::test]
@@ -77,7 +77,7 @@ mod tests {
     async fn test_skins() {
         let ddapi = DDApi::new();
         let result = ddapi.skins().await;
-        assert_eq!(result.is_ok(), true)
+        assert!(result.is_ok())
     }
 
     #[tokio::test]
@@ -85,7 +85,7 @@ mod tests {
     async fn test_latest_finishes() {
         let ddapi = DDApi::new();
         let result = ddapi.latest_finish().await;
-        assert_eq!(result.is_ok(), true)
+        assert!(result.is_ok())
     }
 
     // ddstats
@@ -94,7 +94,7 @@ mod tests {
     async fn test_s_player() {
         let ddapi = DDApi::new();
         let result = ddapi.s_player(&PLAYER).await;
-        assert_eq!(result.is_ok(), true);
+        assert!(result.is_ok());
     }
 
     #[tokio::test]
@@ -102,7 +102,7 @@ mod tests {
     async fn test_s_maps() {
         let ddapi = DDApi::new();
         let result = ddapi.s_maps().await;
-        assert_eq!(result.is_ok(), true);
+        assert!(result.is_ok());
     }
 
     #[tokio::test]
@@ -110,7 +110,7 @@ mod tests {
     async fn test_s_profile() {
         let ddapi = DDApi::new();
         let result = ddapi.s_profile(PLAYER).await;
-        assert_eq!(result.is_ok(), true);
+        assert!(result.is_ok());
     }
 
     #[tokio::test]
@@ -118,6 +118,6 @@ mod tests {
     async fn test_s_map() {
         let ddapi = DDApi::new();
         let result = ddapi.s_map(MAP).await;
-        assert_eq!(result.is_ok(), true);
+        assert!(result.is_ok());
     }
 }
