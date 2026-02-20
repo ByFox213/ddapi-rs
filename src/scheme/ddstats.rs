@@ -124,18 +124,19 @@ impl StatsMap {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct FavouriteTeammate {
     pub name: String,
-    pub ranks_together: u64,
+    pub ranks_together: i64,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Profile {
     pub name: String,
-    pub points: u64,
+    pub points: i32,
     pub clan: Option<String>,
-    pub country: Option<u64>,
+    pub country: Option<i32>,
     pub skin_name: Option<String>,
-    pub skin_color_body: Option<i64>,
-    pub skin_color_feet: Option<i64>,
+    pub skin_color_body: Option<i32>,
+    pub skin_color_feet: Option<i32>,
+    pub most_played_location: Option<String>,
 }
 
 impl Profile {
