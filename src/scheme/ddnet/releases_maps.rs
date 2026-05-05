@@ -1,5 +1,5 @@
 use crate::scheme::DDNET_BASE_URL;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ReleasesMaps {

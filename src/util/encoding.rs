@@ -128,12 +128,35 @@ pub fn slugify2(nickname: &str) -> Cow<'_, str> {
 /// assert_eq!(encode("a b"), "a%20b");
 /// ```
 pub fn encode(nickname: &str) -> Cow<'_, str> {
+    // RFC 3986 unreserved characters: ALPHA / DIGIT / "-" / "." / "_" / "~"
+    // If already unreserved-only, return a borrow.
     if nickname
-        .chars()
-        .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_' || c == '.' || c == '~')
+        .bytes()
+        .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'-' | b'_' | b'.' | b'~'))
     {
-        Cow::Borrowed(nickname)
-    } else {
-        urlencoding::encode(nickname)
+        return Cow::Borrowed(nickname);
+    }
+
+    // Percent-encode UTF-8 bytes. This avoids pulling in a dependency for a tiny operation.
+    let mut out = String::with_capacity(nickname.len() * 3);
+    for &b in nickname.as_bytes() {
+        if b.is_ascii_alphanumeric() || matches!(b, b'-' | b'_' | b'.' | b'~') {
+            out.push(b as char);
+        } else {
+            out.push('%');
+            out.push(hex_upper(b >> 4));
+            out.push(hex_upper(b & 0x0f));
+        }
+    }
+    Cow::Owned(out)
+}
+
+#[inline]
+fn hex_upper(n: u8) -> char {
+    debug_assert!(n < 16);
+    match n {
+        0..=9 => (b'0' + n) as char,
+        10..=15 => (b'A' + (n - 10)) as char,
+        _ => unreachable!(),
     }
 }

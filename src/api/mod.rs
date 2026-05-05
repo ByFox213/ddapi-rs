@@ -16,12 +16,12 @@ const DEFAULT_CACHE_CAPACITY: u64 = 10_000;
 pub(crate) struct ApiCore {
     client: Client,
     #[cfg(feature = "cache")]
-    cache: Option<Cache<String, bytes::Bytes>>,
+    cache: Option<Cache<String, Vec<u8>>>,
 }
 
 impl ApiCore {
     #[cfg(feature = "cache")]
-    fn default_cache() -> Cache<String, bytes::Bytes> {
+    fn default_cache() -> Cache<String, Vec<u8>> {
         Cache::builder()
             .max_capacity(DEFAULT_CACHE_CAPACITY)
             .time_to_live(DEFAULT_CACHE_TTL)
@@ -71,7 +71,7 @@ impl ApiCore {
     }
 
     /// Sends an HTTP GET request to the specified URL and returns the raw response body.
-    async fn send_request(&self, url: &str) -> Result<bytes::Bytes> {
+    async fn send_request(&self, url: &str) -> Result<Vec<u8>> {
         let response = self
             .client
             .get(url)
@@ -81,7 +81,7 @@ impl ApiCore {
             .await?;
 
         let status = response.status();
-        let body = response.bytes().await?;
+        let body = response.bytes().await?.to_vec();
 
         if body.is_empty() {
             return Err(Error::EmptyBody);
@@ -120,11 +120,11 @@ impl ApiCore {
         match &self.cache {
             Some(cache) => {
                 if let Some(value) = cache.get(&cache_key).await {
-                    self.parse_response::<T>(value.as_ref())
+                    self.parse_response::<T>(value.as_slice())
                 } else {
                     let body = self.send_request(url).await?;
                     cache.insert(cache_key, body.clone()).await;
-                    self.parse_response::<T>(body.as_ref())
+                    self.parse_response::<T>(body.as_slice())
                 }
             }
             None => self._generator_no_cache(url).await,
@@ -136,7 +136,7 @@ impl ApiCore {
         T: DeserializeOwned,
     {
         let body = self.send_request(url).await?;
-        self.parse_response::<T>(body.as_ref())
+        self.parse_response::<T>(body.as_slice())
     }
 
     fn parse_response<T>(&self, body: &[u8]) -> Result<T>

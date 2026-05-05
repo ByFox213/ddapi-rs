@@ -1,7 +1,7 @@
 use crate::prelude::{encode, slugify2};
 use crate::scheme::{deserialize_datetime_timestamp, serialize_datetime_timestamp, DDNET_BASE_URL};
 use chrono::NaiveDateTime;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]

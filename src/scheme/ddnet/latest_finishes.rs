@@ -1,7 +1,7 @@
 use crate::scheme::DDNET_BASE_URL;
 use crate::scheme::{deserialize_datetime_timestamp, serialize_datetime_timestamp};
 use chrono::NaiveDateTime;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LatestFinishes {

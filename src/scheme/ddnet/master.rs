@@ -1,7 +1,7 @@
 use crate::prelude::Addr;
 use crate::prelude::{addr_serialization, Protocol};
 use crate::scheme::DDNET_BASE_URL;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
 fn default_location() -> String {
@@ -93,7 +93,7 @@ impl Master {
             .map(|(name, count)| ClanCount { name, count })
             .collect();
 
-        result.sort_by(|a, b| b.count.cmp(&a.count));
+        result.sort_by_key(|x| std::cmp::Reverse(x.count));
         result
     }
 }
