@@ -1,11 +1,11 @@
 mod api;
 mod error;
 mod scheme;
-mod tests;
 mod util;
 
 pub mod prelude {
     pub use crate::api::DDApi;
+    pub use crate::api::{DDnetClient, DDstatsClient};
     pub use crate::error::*;
     pub use crate::util::prelude::*;
 

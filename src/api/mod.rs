@@ -1,17 +1,216 @@
-use crate::error::ApiError;
-use anyhow::{Context, Result};
+use crate::error::{Error, Result};
 #[cfg(feature = "cache")]
 use moka::future::Cache;
+use reqwest::header;
 use reqwest::Client;
 use serde::de::DeserializeOwned;
 #[allow(unused_imports)]
 use std::time::Duration;
 
+#[cfg(feature = "cache")]
+const DEFAULT_CACHE_TTL: Duration = Duration::from_secs(60 * 10);
+#[cfg(feature = "cache")]
+const DEFAULT_CACHE_CAPACITY: u64 = 10_000;
+
 #[derive(Clone, Default)]
-pub struct DDApi {
+pub(crate) struct ApiCore {
     client: Client,
     #[cfg(feature = "cache")]
-    cache: Option<Cache<String, String>>,
+    cache: Option<Cache<String, bytes::Bytes>>,
+}
+
+impl ApiCore {
+    #[cfg(feature = "cache")]
+    fn default_cache() -> Cache<String, bytes::Bytes> {
+        Cache::builder()
+            .max_capacity(DEFAULT_CACHE_CAPACITY)
+            .time_to_live(DEFAULT_CACHE_TTL)
+            .build()
+    }
+
+    fn new() -> Self {
+        let client = Client::builder()
+            .user_agent(concat!(
+                env!("CARGO_PKG_NAME"),
+                "/",
+                env!("CARGO_PKG_VERSION")
+            ))
+            .default_headers({
+                let mut h = header::HeaderMap::new();
+                h.insert(
+                    header::ACCEPT,
+                    header::HeaderValue::from_static("application/json"),
+                );
+                h
+            })
+            .build()
+            .unwrap_or_else(|_| Client::new());
+        Self {
+            client,
+            #[cfg(feature = "cache")]
+            cache: Some(Self::default_cache()),
+        }
+    }
+
+    fn new_with_client(client: Client) -> Self {
+        Self {
+            client,
+            #[cfg(feature = "cache")]
+            cache: Some(Self::default_cache()),
+        }
+    }
+
+    #[cfg(feature = "cache")]
+    fn set_cache(&mut self, capacity: u64, time_to_live: Duration) {
+        self.cache = Some(
+            Cache::builder()
+                .max_capacity(capacity)
+                .time_to_live(time_to_live)
+                .build(),
+        );
+    }
+
+    /// Sends an HTTP GET request to the specified URL and returns the raw response body.
+    async fn send_request(&self, url: &str) -> Result<bytes::Bytes> {
+        let response = self
+            .client
+            .get(url)
+            // Avoid hanging forever on large responses while still being generous.
+            .timeout(Duration::from_secs(30))
+            .send()
+            .await?;
+
+        let status = response.status();
+        let body = response.bytes().await?;
+
+        if body.is_empty() {
+            return Err(Error::EmptyBody);
+        }
+
+        if !status.is_success() {
+            let msg = String::from_utf8_lossy(&body).chars().take(2048).collect();
+            return Err(Error::HttpStatus { status, body: msg });
+        }
+
+        Ok(body)
+    }
+
+    pub async fn _generator<T>(&self, url: &str) -> Result<T>
+    where
+        T: DeserializeOwned + Send + Sync + 'static,
+    {
+        #[cfg(feature = "cache")]
+        {
+            self._generator_cached(url).await
+        }
+        #[cfg(not(feature = "cache"))]
+        {
+            self._generator_no_cache(url).await
+        }
+    }
+
+    #[cfg(feature = "cache")]
+    async fn _generator_cached<T>(&self, url: &str) -> Result<T>
+    where
+        T: DeserializeOwned + Send + Sync + 'static,
+    {
+        let type_name = std::any::type_name::<T>();
+        let cache_key = format!("{}:{}", type_name, url);
+
+        match &self.cache {
+            Some(cache) => {
+                if let Some(value) = cache.get(&cache_key).await {
+                    self.parse_response::<T>(value.as_ref())
+                } else {
+                    let body = self.send_request(url).await?;
+                    cache.insert(cache_key, body.clone()).await;
+                    self.parse_response::<T>(body.as_ref())
+                }
+            }
+            None => self._generator_no_cache(url).await,
+        }
+    }
+
+    pub async fn _generator_no_cache<T>(&self, url: &str) -> Result<T>
+    where
+        T: DeserializeOwned,
+    {
+        let body = self.send_request(url).await?;
+        self.parse_response::<T>(body.as_ref())
+    }
+
+    fn parse_response<T>(&self, body: &[u8]) -> Result<T>
+    where
+        T: DeserializeOwned,
+    {
+        // ddnet "not found" convention: empty JSON object.
+        #[cfg(feature = "ddnet")]
+        {
+            let trimmed = trim_ascii(body);
+            if trimmed == b"{}" {
+                return Err(Error::NotFound);
+            }
+        }
+
+        // ddstats sometimes returns HTTP 200 with { "error": "..." }.
+        #[cfg(feature = "ddstats")]
+        {
+            #[derive(serde::Deserialize)]
+            #[serde(untagged)]
+            enum MaybeError<T> {
+                Err { error: String },
+                Ok(T),
+            }
+
+            // Single-pass parse: either error envelope or expected payload.
+            match serde_json::from_slice::<MaybeError<T>>(body)? {
+                MaybeError::Err { error } => {
+                    if error.eq_ignore_ascii_case("player not found") {
+                        Err(Error::NotFound)
+                    } else {
+                        Err(Error::RemoteMessage(error))
+                    }
+                }
+                MaybeError::Ok(v) => Ok(v),
+            }
+        }
+
+        #[cfg(not(feature = "ddstats"))]
+        {
+            Ok(serde_json::from_slice(body)?)
+        }
+    }
+}
+
+fn trim_ascii(mut s: &[u8]) -> &[u8] {
+    while let Some((&b, rest)) = s.split_first() {
+        if !b.is_ascii_whitespace() {
+            break;
+        }
+        s = rest;
+    }
+    while let Some((&b, rest)) = s.split_last() {
+        if !b.is_ascii_whitespace() {
+            break;
+        }
+        s = rest;
+    }
+    s
+}
+
+pub trait HasApiCore {
+    fn core(&self) -> &ApiCore;
+}
+
+#[derive(Clone, Default)]
+pub struct DDApi {
+    core: ApiCore,
+}
+
+impl HasApiCore for DDApi {
+    fn core(&self) -> &ApiCore {
+        &self.core
+    }
 }
 
 impl DDApi {
@@ -26,9 +225,7 @@ impl DDApi {
     /// ```
     pub fn new() -> Self {
         DDApi {
-            client: Client::new(),
-            #[cfg(feature = "cache")]
-            cache: None,
+            core: ApiCore::new(),
         }
     }
 
@@ -55,9 +252,7 @@ impl DDApi {
     /// ```
     pub fn new_with_client(client: Client) -> Self {
         DDApi {
-            client,
-            #[cfg(feature = "cache")]
-            cache: None,
+            core: ApiCore::new_with_client(client),
         }
     }
 
@@ -79,50 +274,11 @@ impl DDApi {
     /// use std::time::Duration;
     ///
     /// let mut api = DDApi::new();
-    /// api.set_cache(1000, Duration::from_mins(5)); // Cache 1000 items for 5 minutes
+    /// api.set_cache(1000, Duration::from_secs(60 * 5)); // Cache 1000 items for 5 minutes
     /// ```
     #[cfg(feature = "cache")]
     pub fn set_cache(&mut self, capacity: u64, time_to_live: Duration) {
-        self.cache = Some(
-            Cache::builder()
-                .max_capacity(capacity)
-                .time_to_live(time_to_live)
-                .build(),
-        );
-    }
-
-    /// Sends an HTTP GET request to the specified URL and returns the response text
-    ///
-    /// # Arguments
-    ///
-    /// * `url` - The URL to send the request to
-    ///
-    /// # Returns
-    ///
-    /// Returns `Result<String>` with the response body on success
-    async fn send_request(&self, url: &str) -> Result<String> {
-        let response = self
-            .client
-            .get(url)
-            .send()
-            .await
-            .context("Failed to send request")?;
-
-        let text = response
-            .text()
-            .await
-            .context("Failed to read response body")?;
-
-        if text.is_empty() {
-            anyhow::bail!("API returned empty response");
-        }
-
-        #[cfg(feature = "ddnet")]
-        if text == "{}" {
-            return Err(anyhow::Error::from(ApiError::NotFound));
-        }
-
-        Ok(text)
+        self.core.set_cache(capacity, time_to_live);
     }
 
     /// Executes an API request and deserializes the JSON response
@@ -147,52 +303,7 @@ impl DDApi {
     where
         T: DeserializeOwned + Send + Sync + 'static,
     {
-        #[cfg(feature = "cache")]
-        {
-            self._generator_cached(url).await
-        }
-        #[cfg(not(feature = "cache"))]
-        {
-            self._generator_no_cache(url).await
-        }
-    }
-
-    /// Executes a cached API request
-    ///
-    /// Checks the cache first for existing responses. If not found in cache,
-    /// fetches from the API and stores the response in cache.
-    ///
-    /// # Type Parameters
-    ///
-    /// * `T` - The type to deserialize the response into
-    ///
-    /// # Arguments
-    ///
-    /// * `url` - The API endpoint URL to request
-    ///
-    /// # Returns
-    ///
-    /// Returns `Result<T>` with deserialized data from cache or API
-    #[cfg(feature = "cache")]
-    async fn _generator_cached<T>(&self, url: &str) -> Result<T>
-    where
-        T: DeserializeOwned + Send + Sync + 'static,
-    {
-        let type_name = std::any::type_name::<T>();
-        let cache_key = format!("{}:{}", type_name, url);
-
-        match &self.cache {
-            Some(cache) => {
-                if let Some(value) = cache.get(&cache_key).await {
-                    self.parse_response::<T>(&value)
-                } else {
-                    let response_text = self.send_request(url).await?;
-                    cache.insert(cache_key, response_text.clone()).await;
-                    self.parse_response::<T>(&response_text)
-                }
-            }
-            None => self._generator_no_cache(url).await,
-        }
+        self.core._generator(url).await
     }
 
     /// Executes an API request without caching
@@ -214,45 +325,67 @@ impl DDApi {
     where
         T: DeserializeOwned,
     {
-        let response_text = self.send_request(url).await?;
-        self.parse_response::<T>(&response_text)
+        self.core._generator_no_cache(url).await
+    }
+}
+
+#[derive(Clone, Default)]
+pub struct DDnetClient {
+    core: ApiCore,
+}
+
+impl HasApiCore for DDnetClient {
+    fn core(&self) -> &ApiCore {
+        &self.core
+    }
+}
+
+impl DDnetClient {
+    pub fn new() -> Self {
+        Self {
+            core: ApiCore::new(),
+        }
     }
 
-    /// Parses the API response text into the desired type
-    ///
-    /// # Type Parameters
-    ///
-    /// * `T` - The type to deserialize the response into
-    ///
-    /// # Arguments
-    ///
-    /// * `response_text` - The raw response text from the API
-    ///
-    /// # Returns
-    ///
-    /// Returns `Result<T>` with the deserialized data on success, or an appropriate error
-    fn parse_response<T>(&self, response_text: &str) -> Result<T>
-    where
-        T: DeserializeOwned,
-    {
-        // ddnet
-        #[cfg(feature = "ddnet")]
-        if response_text == "{}" {
-            return Err(anyhow::Error::from(ApiError::NotFound));
+    pub fn new_with_client(client: Client) -> Self {
+        Self {
+            core: ApiCore::new_with_client(client),
         }
+    }
 
-        // ddstats
-        #[cfg(feature = "ddstats")]
-        if let Ok(error_response) = serde_json::from_str::<serde_json::Value>(response_text) {
-            if let Some(error_msg) = error_response.get("error").and_then(|e| e.as_str()) {
-                return match error_msg.to_lowercase().as_str() {
-                    "player not found" => Err(anyhow::Error::from(ApiError::NotFound)),
-                    _ => Err(anyhow::anyhow!(error_msg.to_string())),
-                };
-            }
+    #[cfg(feature = "cache")]
+    pub fn set_cache(&mut self, capacity: u64, time_to_live: Duration) {
+        self.core.set_cache(capacity, time_to_live);
+    }
+}
+
+#[derive(Clone, Default)]
+pub struct DDstatsClient {
+    core: ApiCore,
+}
+
+impl HasApiCore for DDstatsClient {
+    fn core(&self) -> &ApiCore {
+        &self.core
+    }
+}
+
+impl DDstatsClient {
+    pub fn new() -> Self {
+        Self {
+            core: ApiCore::new(),
         }
+    }
 
-        serde_json::from_str(response_text).map_err(Into::into)
+    pub fn new_with_client(client: Client) -> Self {
+        Self {
+            core: ApiCore::new_with_client(client),
+        }
+    }
+
+    #[cfg(feature = "cache")]
+    pub fn set_cache(&mut self, capacity: u64, time_to_live: Duration) {
+        self.core.set_cache(capacity, time_to_live);
     }
 }
 

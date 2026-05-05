@@ -1,13 +1,13 @@
-use crate::api::DDApi;
+use crate::api::{DDApi, DDstatsClient, HasApiCore};
+use crate::error::Result;
 use crate::scheme::ddstats::*;
-use anyhow::Result;
 use std::future::Future;
 
 pub trait DDstats {
-    fn s_player(&self, player: &str) -> impl Future<Output = Result<Player>> + Send;
-    fn s_map(&self, map: &str) -> impl Future<Output = Result<Map>> + Send;
-    fn s_maps(&self) -> impl Future<Output = Result<Vec<StatsMap>>> + Send;
-    fn s_profile(&self, player: &str) -> impl Future<Output = Result<Profile>> + Send;
+    fn player(&self, player: &str) -> impl Future<Output = Result<Player>> + Send;
+    fn map(&self, map: &str) -> impl Future<Output = Result<Map>> + Send;
+    fn maps(&self) -> impl Future<Output = Result<Vec<StatsMap>>> + Send;
+    fn profile(&self, player: &str) -> impl Future<Output = Result<Profile>> + Send;
 }
 
 impl DDstats for DDApi {
@@ -18,10 +18,10 @@ impl DDstats for DDApi {
     /// use ddapi_rs::prelude::ddstats::*;
     ///
     /// let api = DDApi::new();
-    /// let player: Player = api.s_player("Aoe").await?;
+    /// let player: Player = api.player("Aoe").await?;
     /// println!("{}: {} | {}", player.profile.name, player.profile.points, player.profile.clan.unwrap_or(String::default()));
     /// ```
-    async fn s_player(&self, player: &str) -> Result<Player> {
+    async fn player(&self, player: &str) -> Result<Player> {
         self._generator(&Player::api(player)).await
     }
 
@@ -32,10 +32,10 @@ impl DDstats for DDApi {
     /// use ddapi_rs::prelude::ddstats::*;
     ///
     /// let api = DDApi::new();
-    /// let map: Map = api.s_map("Fox").await?;
+    /// let map: Map = api.map("Fox").await?;
     /// println!("{}: {} | {}", map.info.map.map, map.info.map.stars, map.info.finishes);
     /// ```
-    async fn s_map(&self, map: &str) -> Result<Map> {
+    async fn map(&self, map: &str) -> Result<Map> {
         self._generator(&Map::api(map)).await
     }
 
@@ -46,12 +46,12 @@ impl DDstats for DDApi {
     /// use ddapi_rs::prelude::ddstats::*;
     ///
     /// let api = DDApi::new();
-    /// let maps: Vec<StatsMap> = api.s_maps().await?;
+    /// let maps: Vec<StatsMap> = api.maps().await?;
     /// for map in &maps {
     ///     println!("{}: {} | {}", map.map, map.stars, map.points);
     /// }
     /// ```
-    async fn s_maps(&self) -> Result<Vec<StatsMap>> {
+    async fn maps(&self) -> Result<Vec<StatsMap>> {
         self._generator(&StatsMap::api()).await
     }
 
@@ -62,10 +62,28 @@ impl DDstats for DDApi {
     /// use ddapi_rs::prelude::ddstats::*;
     ///
     /// let api = DDApi::new();
-    /// let player: Profile = api.s_profile("ByFox").await?;
+    /// let player: Profile = api.profile("ByFox").await?;
     /// println!("{}: {}", player.name, player.clan.unwrap_or(String::default()));
     /// ```
-    async fn s_profile(&self, player: &str) -> Result<Profile> {
+    async fn profile(&self, player: &str) -> Result<Profile> {
         self._generator(&Profile::api(player)).await
+    }
+}
+
+impl DDstats for DDstatsClient {
+    async fn player(&self, player: &str) -> Result<Player> {
+        self.core()._generator(&Player::api(player)).await
+    }
+
+    async fn map(&self, map: &str) -> Result<Map> {
+        self.core()._generator(&Map::api(map)).await
+    }
+
+    async fn maps(&self) -> Result<Vec<StatsMap>> {
+        self.core()._generator(&StatsMap::api()).await
+    }
+
+    async fn profile(&self, player: &str) -> Result<Profile> {
+        self.core()._generator(&Profile::api(player)).await
     }
 }

@@ -1,6 +1,6 @@
-use crate::api::DDApi;
+use crate::api::{DDApi, DDnetClient, HasApiCore};
+use crate::error::Result;
 use crate::scheme::ddnet::prelude::*;
-use anyhow::Result;
 use std::future::Future;
 
 #[allow(dead_code)]
@@ -194,5 +194,57 @@ impl DDnetApi for DDApi {
 
     async fn latest_finish_with_latest(&self, latest: usize) -> Result<Vec<LatestFinishes>> {
         self._generator_no_cache(&LatestFinishes::api(latest)).await
+    }
+}
+
+impl DDnetApi for DDnetClient {
+    async fn master(&self) -> Result<Master> {
+        self.custom_master(MasterServer::One).await
+    }
+
+    async fn skins(&self) -> Result<DDSkins> {
+        self.core()._generator(&DDSkins::api()).await
+    }
+
+    async fn custom_master(&self, master: MasterServer) -> Result<Master> {
+        self.core()._generator_no_cache(&Master::api(master)).await
+    }
+
+    async fn player(&self, player: &str) -> Result<Player> {
+        self.core()._generator(&Player::api(player)).await
+    }
+
+    async fn query(&self, player: &str) -> Result<Vec<Query>> {
+        self.core()._generator(&Query::api(player)).await
+    }
+
+    async fn query_map(&self, map: &str) -> Result<Vec<QueryMap>> {
+        self.core()._generator(&QueryMap::api(map)).await
+    }
+
+    async fn query_mapper(&self, player: &str) -> Result<Vec<QueryMapper>> {
+        self.core()._generator(&QueryMapper::api(player)).await
+    }
+
+    async fn map(&self, map: &str) -> Result<Map> {
+        self.core()._generator(&Map::api(map)).await
+    }
+
+    async fn releases_map(&self) -> Result<Vec<ReleasesMaps>> {
+        self.core()._generator_no_cache(&ReleasesMaps::api()).await
+    }
+
+    async fn status(&self) -> Result<Status> {
+        self.core()._generator_no_cache(&Status::api()).await
+    }
+
+    async fn latest_finish(&self) -> Result<Vec<LatestFinishes>> {
+        self.latest_finish_with_latest(0).await
+    }
+
+    async fn latest_finish_with_latest(&self, latest: usize) -> Result<Vec<LatestFinishes>> {
+        self.core()
+            ._generator_no_cache(&LatestFinishes::api(latest))
+            .await
     }
 }
