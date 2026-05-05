@@ -12,6 +12,8 @@ pub struct Player {
     pub finishes: Vec<Finish>,
     pub unfinished_maps: Vec<UnfinishedMap>,
     pub points: Points,
+    #[serde(default)]
+    pub completion_progress: Vec<CompletionProgress>,
     pub recent_activity: Vec<RecentActivity>,
     pub recent_player_info: Vec<RecentPlayerInfo>,
     pub most_played_maps: Vec<MostPlayedMap>,
@@ -23,6 +25,13 @@ pub struct Player {
     pub favourite_rank1s_teammates: Vec<FavouriteRank1sTeammates>,
     pub all_top_10s: Vec<AllTop10>,
     pub recent_top_10s: Vec<RecentTop10>,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct CompletionProgress {
+    pub category: String,
+    pub maps_finished: u64,
+    pub maps_total: u64,
 }
 
 impl Player {
@@ -235,7 +244,7 @@ pub struct RecentActivity {
 pub struct RecentPlayerInfo {
     pub name: String,
     pub clan: String,
-    pub country: i16,
+    pub country: i32,
     pub skin_name: Option<String>,
     pub skin_color_body: Option<u64>,
     pub skin_color_feet: Option<u64>,

@@ -2,6 +2,7 @@ use crate::scheme::DDNET_BASE_URL;
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
 pub struct StatusData {
     pub name: String,
     pub r#type: String,
