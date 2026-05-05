@@ -1,14 +1,50 @@
 use std::borrow::Cow;
 use std::fmt::Write;
 
-const SLUGIFY2_SYMBOLS: &str = "[\t !\"#$%&'()*-/<=>?@[\\]^_`{|},.:]+";
 const NON_ASCII_CHARACTER_THRESHOLD: u32 = 128;
+
+#[inline]
+fn is_slugify2_symbol(c: char) -> bool {
+    matches!(
+        c,
+        '\t' | ' '
+            | '!'
+            | '"'
+            | '#'
+            | '$'
+            | '%'
+            | '&'
+            | '\''
+            | '('
+            | ')'
+            | '*'
+            | '-'
+            | '/'
+            | '<'
+            | '='
+            | '>'
+            | '?'
+            | '@'
+            | '['
+            | '\\'
+            | ']'
+            | '^'
+            | '_'
+            | '`'
+            | '{'
+            | '|'
+            | '}'
+            | ','
+            | '.'
+            | ':'
+    )
+}
 
 /// Converts a nickname to a URL-safe slug format for API requests
 ///
 /// This function handles special characters and non-ASCII characters in nicknames
 /// by encoding them into a format that can be safely used in URLs. Characters that
-/// are not ASCII or are in `SLUGIFY_SYMBOLS` are converted to their Unicode code points
+/// are not ASCII or are one of the slugify2 separator symbols are converted to their Unicode code points
 /// surrounded by hyphens.
 ///
 /// # Arguments
@@ -37,7 +73,7 @@ const NON_ASCII_CHARACTER_THRESHOLD: u32 = 128;
 pub fn slugify2(nickname: &str) -> Cow<'_, str> {
     let needs_processing = nickname
         .chars()
-        .any(|c| SLUGIFY2_SYMBOLS.contains(c) || (c as u32) >= NON_ASCII_CHARACTER_THRESHOLD);
+        .any(|c| is_slugify2_symbol(c) || (c as u32) >= NON_ASCII_CHARACTER_THRESHOLD);
 
     if !needs_processing {
         return Cow::Borrowed(nickname);
@@ -46,7 +82,7 @@ pub fn slugify2(nickname: &str) -> Cow<'_, str> {
     let mut result = String::with_capacity(nickname.len() * 4);
 
     for c in nickname.chars() {
-        if SLUGIFY2_SYMBOLS.contains(c) || (c as u32) >= NON_ASCII_CHARACTER_THRESHOLD {
+        if is_slugify2_symbol(c) || (c as u32) >= NON_ASCII_CHARACTER_THRESHOLD {
             write!(&mut result, "-{}-", c as u32).unwrap();
         } else {
             result.push(c);
