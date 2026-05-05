@@ -3,7 +3,6 @@ use std::fmt::Write;
 
 const NON_ASCII_CHARACTER_THRESHOLD: u32 = 128;
 
-#[inline]
 fn is_slugify2_symbol(c: char) -> bool {
     matches!(
         c,
