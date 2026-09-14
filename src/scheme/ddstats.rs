@@ -35,6 +35,7 @@ pub struct CompletionProgress {
 }
 
 impl Player {
+    #[must_use]
     pub fn url(&self) -> String {
         format!(
             "https://{}/player/{}",
@@ -43,10 +44,12 @@ impl Player {
         )
     }
 
+    #[must_use]
     pub fn url_with_name(player: &str) -> String {
         format!("https://{}/player/{}", DDSTATS_BASE_URL, encode(player))
     }
 
+    #[must_use]
     pub fn api(player: &str) -> String {
         format!(
             "https://{}/player/json?player={}",
@@ -109,6 +112,7 @@ pub struct StatsMap {
 }
 
 impl StatsMap {
+    #[must_use]
     pub fn url(&self) -> String {
         format!(
             "https://{}/map/{}",
@@ -117,6 +121,7 @@ impl StatsMap {
         )
     }
 
+    #[must_use]
     pub fn url_with_name(map: &str) -> String {
         format!(
             "https://{}/map/{}",
@@ -125,8 +130,9 @@ impl StatsMap {
         )
     }
 
+    #[must_use]
     pub fn api() -> String {
-        format!("https://{}/maps/json", DDSTATS_BASE_URL)
+        format!("https://{DDSTATS_BASE_URL}/maps/json")
     }
 }
 
@@ -149,14 +155,17 @@ pub struct Profile {
 }
 
 impl Profile {
+    #[must_use]
     pub fn url(&self) -> String {
         format!("https://{}/player/{}", DDSTATS_BASE_URL, encode(&self.name))
     }
 
+    #[must_use]
     pub fn url_with_name(player: &str) -> String {
         format!("https://{}/player/{}", DDSTATS_BASE_URL, encode(player))
     }
 
+    #[must_use]
     pub fn api(player: &str) -> String {
         format!(
             "https://{}/profile/json?player={}",
@@ -280,12 +289,20 @@ pub struct GeneralActivity {
 }
 
 impl GeneralActivity {
+    #[must_use]
     pub fn total_seconds_played_to_hours(&self) -> f64 {
-        seconds_to_hours(self.total_seconds_played as f64)
+        // Seconds below 2^53 (≈285M years) convert losslessly; playtime is
+        // nowhere near that, so the cast is safe.
+        #[allow(clippy::cast_precision_loss)]
+        let seconds = self.total_seconds_played as f64;
+        seconds_to_hours(seconds)
     }
 
+    #[must_use]
     pub fn average_seconds_played_to_hours(&self) -> f64 {
-        seconds_to_hours(self.average_seconds_played as f64)
+        #[allow(clippy::cast_precision_loss)]
+        let seconds = self.average_seconds_played as f64;
+        seconds_to_hours(seconds)
     }
 }
 
@@ -321,6 +338,8 @@ pub struct InfoSMap {
     pub finishes: u64,
     pub finishes_rank: u64,
     pub median_time: f64,
+    pub total_playtime: u64,
+    pub total_playtime_rank: u64,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -377,6 +396,7 @@ pub struct TimeCpsSMap {
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PlaytimeSMap {
+    pub rank: u64,
     pub name: String,
     pub seconds_played: u64,
 }
@@ -391,6 +411,7 @@ pub struct Map {
 }
 
 impl Map {
+    #[must_use]
     pub fn url(&self) -> String {
         format!(
             "https://{}/map/{}",
@@ -399,10 +420,12 @@ impl Map {
         )
     }
 
+    #[must_use]
     pub fn url_with_name(map: &str) -> String {
         format!("https://{}/map/{}", DDSTATS_BASE_URL, encode(map))
     }
 
+    #[must_use]
     pub fn api(map: &str) -> String {
         format!("https://{}/map/json?map={}", DDSTATS_BASE_URL, encode(map))
     }
