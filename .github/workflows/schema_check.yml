@@ -1,0 +1,26 @@
+name: Schema Check
+
+on:
+  schedule:
+    - cron: "0 0 * * 1"
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  schema-drift-check:
+    name: Live schema drift check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Repository
+        uses: actions/checkout@v6
+
+      - name: Install stable toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Check fixture schemas
+        run: cargo test --all-features --test schema_ddnet --test schema_ddstats
+
+      - name: Check live API schemas
+        run: cargo test --all-features --test schema_ddnet --test schema_ddstats -- --ignored
