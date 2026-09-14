@@ -10,6 +10,7 @@ pub struct Query {
 }
 
 impl Query {
+    #[must_use]
     pub fn api(player: &str) -> String {
         format!(
             "https://{}/players/?query={}",

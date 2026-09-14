@@ -17,11 +17,13 @@ pub struct LatestFinishes {
 }
 
 impl LatestFinishes {
+    #[must_use]
     pub fn url() -> String {
-        format!("https://{}/ranks", DDNET_BASE_URL)
+        format!("https://{DDNET_BASE_URL}/ranks")
     }
 
+    #[must_use]
     pub fn api(latest: usize) -> String {
-        format!("https://{}/maps/?latest={}", DDNET_BASE_URL, latest)
+        format!("https://{DDNET_BASE_URL}/maps/?latest={latest}")
     }
 }

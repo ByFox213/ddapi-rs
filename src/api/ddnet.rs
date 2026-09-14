@@ -54,12 +54,12 @@ impl DDnetApi for DDApi {
     /// }
     /// ```
     async fn skins(&self) -> Result<DDSkins> {
-        self._generator(&DDSkins::api()).await
+        self.generator(&DDSkins::api()).await
     }
 
     /// Fetches server list from a specific master server
     ///
-    /// Allows selecting which master server to query. DDNet has multiple
+    /// Allows selecting which master server to query. `DDNet` has multiple
     /// master servers for redundancy and load distribution.
     ///
     /// # Arguments
@@ -77,7 +77,7 @@ impl DDnetApi for DDApi {
     /// let master = api.custom_master(MasterServer::Two).await?;
     /// ```
     async fn custom_master(&self, master: MasterServer) -> Result<Master> {
-        self._generator_no_cache(&Master::api(master)).await
+        self.generator_no_cache(&Master::api(master)).await
     }
 
     /// # Examples
@@ -91,7 +91,7 @@ impl DDnetApi for DDApi {
     /// println!("{}: {}", player.player, player.points.points.unwrap_or(0));
     /// ```
     async fn player(&self, player: &str) -> Result<Player> {
-        self._generator(&Player::api(player)).await
+        self.generator(&Player::api(player)).await
     }
 
     /// # Examples
@@ -107,7 +107,7 @@ impl DDnetApi for DDApi {
     /// }
     /// ```
     async fn query(&self, player: &str) -> Result<Vec<Query>> {
-        self._generator(&Query::api(player)).await
+        self.generator(&Query::api(player)).await
     }
 
     /// # Examples
@@ -123,7 +123,7 @@ impl DDnetApi for DDApi {
     /// }
     /// ```
     async fn query_map(&self, map: &str) -> Result<Vec<QueryMap>> {
-        self._generator(&QueryMap::api(map)).await
+        self.generator(&QueryMap::api(map)).await
     }
 
     /// # Examples
@@ -139,7 +139,7 @@ impl DDnetApi for DDApi {
     /// }
     /// ```
     async fn query_mapper(&self, player: &str) -> Result<Vec<QueryMapper>> {
-        self._generator(&QueryMapper::api(player)).await
+        self.generator(&QueryMapper::api(player)).await
     }
 
     /// # Examples
@@ -153,7 +153,7 @@ impl DDnetApi for DDApi {
     /// println!("{}: {}", map.mapper, map.web_preview);
     /// ```
     async fn map(&self, map: &str) -> Result<Map> {
-        self._generator(&Map::api(map)).await
+        self.generator(&Map::api(map)).await
     }
 
     /// # Examples
@@ -169,7 +169,7 @@ impl DDnetApi for DDApi {
     /// }
     /// ```
     async fn releases_map(&self) -> Result<Vec<ReleasesMaps>> {
-        self._generator_no_cache(&ReleasesMaps::api()).await
+        self.generator_no_cache(&ReleasesMaps::api()).await
     }
 
     /// # Examples
@@ -185,7 +185,7 @@ impl DDnetApi for DDApi {
     /// }
     /// ```
     async fn status(&self) -> Result<Status> {
-        self._generator_no_cache(&Status::api()).await
+        self.generator_no_cache(&Status::api()).await
     }
 
     async fn latest_finish(&self) -> Result<Vec<LatestFinishes>> {
@@ -193,7 +193,7 @@ impl DDnetApi for DDApi {
     }
 
     async fn latest_finish_with_latest(&self, latest: usize) -> Result<Vec<LatestFinishes>> {
-        self._generator_no_cache(&LatestFinishes::api(latest)).await
+        self.generator_no_cache(&LatestFinishes::api(latest)).await
     }
 }
 
@@ -203,39 +203,39 @@ impl DDnetApi for DDnetClient {
     }
 
     async fn skins(&self) -> Result<DDSkins> {
-        self.core()._generator(&DDSkins::api()).await
+        self.core().generator(&DDSkins::api()).await
     }
 
     async fn custom_master(&self, master: MasterServer) -> Result<Master> {
-        self.core()._generator_no_cache(&Master::api(master)).await
+        self.core().generator_no_cache(&Master::api(master)).await
     }
 
     async fn player(&self, player: &str) -> Result<Player> {
-        self.core()._generator(&Player::api(player)).await
+        self.core().generator(&Player::api(player)).await
     }
 
     async fn query(&self, player: &str) -> Result<Vec<Query>> {
-        self.core()._generator(&Query::api(player)).await
+        self.core().generator(&Query::api(player)).await
     }
 
     async fn query_map(&self, map: &str) -> Result<Vec<QueryMap>> {
-        self.core()._generator(&QueryMap::api(map)).await
+        self.core().generator(&QueryMap::api(map)).await
     }
 
     async fn query_mapper(&self, player: &str) -> Result<Vec<QueryMapper>> {
-        self.core()._generator(&QueryMapper::api(player)).await
+        self.core().generator(&QueryMapper::api(player)).await
     }
 
     async fn map(&self, map: &str) -> Result<Map> {
-        self.core()._generator(&Map::api(map)).await
+        self.core().generator(&Map::api(map)).await
     }
 
     async fn releases_map(&self) -> Result<Vec<ReleasesMaps>> {
-        self.core()._generator_no_cache(&ReleasesMaps::api()).await
+        self.core().generator_no_cache(&ReleasesMaps::api()).await
     }
 
     async fn status(&self) -> Result<Status> {
-        self.core()._generator_no_cache(&Status::api()).await
+        self.core().generator_no_cache(&Status::api()).await
     }
 
     async fn latest_finish(&self) -> Result<Vec<LatestFinishes>> {
@@ -244,7 +244,7 @@ impl DDnetApi for DDnetClient {
 
     async fn latest_finish_with_latest(&self, latest: usize) -> Result<Vec<LatestFinishes>> {
         self.core()
-            ._generator_no_cache(&LatestFinishes::api(latest))
+            .generator_no_cache(&LatestFinishes::api(latest))
             .await
     }
 }

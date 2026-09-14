@@ -22,7 +22,8 @@ pub fn seconds_to_hours<T: Into<f64>>(seconds: T) -> f64 {
 /// assert_eq!(seconds_to_hours_precision(3661, 3), 1.017); // 3 decimal places
 /// ```
 pub fn seconds_to_hours_precision<T: Into<f64>>(seconds: T, decimal_places: u32) -> f64 {
-    let factor = 10_f64.powi(decimal_places as i32);
+    let places = i32::try_from(decimal_places).unwrap_or(i32::MAX);
+    let factor = 10_f64.powi(places);
     let hours = seconds.into() / 3600.0;
     (hours * factor).round() / factor
 }

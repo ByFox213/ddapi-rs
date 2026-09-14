@@ -32,11 +32,13 @@ pub struct Status {
 }
 
 impl Status {
+    #[must_use]
     pub fn url() -> String {
-        format!("https://{}/status", DDNET_BASE_URL)
+        format!("https://{DDNET_BASE_URL}/status")
     }
 
+    #[must_use]
     pub fn api() -> String {
-        format!("https://{}/status/json/stats.json", DDNET_BASE_URL)
+        format!("https://{DDNET_BASE_URL}/status/json/stats.json")
     }
 }

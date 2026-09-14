@@ -9,6 +9,7 @@ pub struct QueryMapper {
 }
 
 impl QueryMapper {
+    #[must_use]
     pub fn api(player: &str) -> String {
         format!(
             "https://{}/maps/?qmapper={}",

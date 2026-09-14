@@ -1,6 +1,6 @@
 use crate::api::{DDApi, DDstatsClient, HasApiCore};
 use crate::error::Result;
-use crate::scheme::ddstats::*;
+use crate::scheme::ddstats::{Map, Player, Profile, StatsMap};
 use std::future::Future;
 
 pub trait DDstats {
@@ -22,7 +22,7 @@ impl DDstats for DDApi {
     /// println!("{}: {} | {}", player.profile.name, player.profile.points, player.profile.clan.unwrap_or(String::default()));
     /// ```
     async fn player(&self, player: &str) -> Result<Player> {
-        self._generator(&Player::api(player)).await
+        self.generator(&Player::api(player)).await
     }
 
     /// # Examples
@@ -36,7 +36,7 @@ impl DDstats for DDApi {
     /// println!("{}: {} | {}", map.info.map.map, map.info.map.stars, map.info.finishes);
     /// ```
     async fn map(&self, map: &str) -> Result<Map> {
-        self._generator(&Map::api(map)).await
+        self.generator(&Map::api(map)).await
     }
 
     /// # Examples
@@ -52,7 +52,7 @@ impl DDstats for DDApi {
     /// }
     /// ```
     async fn maps(&self) -> Result<Vec<StatsMap>> {
-        self._generator(&StatsMap::api()).await
+        self.generator(&StatsMap::api()).await
     }
 
     /// # Examples
@@ -66,24 +66,24 @@ impl DDstats for DDApi {
     /// println!("{}: {}", player.name, player.clan.unwrap_or(String::default()));
     /// ```
     async fn profile(&self, player: &str) -> Result<Profile> {
-        self._generator(&Profile::api(player)).await
+        self.generator(&Profile::api(player)).await
     }
 }
 
 impl DDstats for DDstatsClient {
     async fn player(&self, player: &str) -> Result<Player> {
-        self.core()._generator(&Player::api(player)).await
+        self.core().generator(&Player::api(player)).await
     }
 
     async fn map(&self, map: &str) -> Result<Map> {
-        self.core()._generator(&Map::api(map)).await
+        self.core().generator(&Map::api(map)).await
     }
 
     async fn maps(&self) -> Result<Vec<StatsMap>> {
-        self.core()._generator(&StatsMap::api()).await
+        self.core().generator(&StatsMap::api()).await
     }
 
     async fn profile(&self, player: &str) -> Result<Profile> {
-        self.core()._generator(&Profile::api(player)).await
+        self.core().generator(&Profile::api(player)).await
     }
 }

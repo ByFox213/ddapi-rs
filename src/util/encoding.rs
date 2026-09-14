@@ -69,6 +69,7 @@ fn is_slugify2_symbol(c: char) -> bool {
 /// // Mixed characters
 /// assert_eq!(slugify2("Test_Player"), "Test-95-Player");
 /// ```
+#[must_use]
 pub fn slugify2(nickname: &str) -> Cow<'_, str> {
     let needs_processing = nickname
         .chars()
@@ -82,7 +83,7 @@ pub fn slugify2(nickname: &str) -> Cow<'_, str> {
 
     for c in nickname.chars() {
         if is_slugify2_symbol(c) || (c as u32) >= NON_ASCII_CHARACTER_THRESHOLD {
-            write!(&mut result, "-{}-", c as u32).unwrap();
+            let _ = write!(&mut result, "-{}-", c as u32);
         } else {
             result.push(c);
         }
@@ -126,6 +127,7 @@ pub fn slugify2(nickname: &str) -> Cow<'_, str> {
 /// assert_eq!(encode(""), "");
 /// assert_eq!(encode("a b"), "a%20b");
 /// ```
+#[must_use]
 pub fn encode(nickname: &str) -> Cow<'_, str> {
     // RFC 3986 unreserved characters: ALPHA / DIGIT / "-" / "." / "_" / "~"
     // If already unreserved-only, return a borrow.

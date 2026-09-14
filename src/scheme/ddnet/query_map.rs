@@ -10,6 +10,7 @@ pub struct QueryMap {
 }
 
 impl QueryMap {
+    #[must_use]
     pub fn api(map: &str) -> String {
         format!("https://{}/maps/?query={}", DDNET_BASE_URL, encode(map))
     }

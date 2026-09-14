@@ -22,7 +22,7 @@ where
 {
     struct NaiveDateTimeVisitor;
 
-    impl<'de> Visitor<'de> for NaiveDateTimeVisitor {
+    impl Visitor<'_> for NaiveDateTimeVisitor {
         type Value = NaiveDateTime;
 
         fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
@@ -46,10 +46,13 @@ where
         where
             E: de::Error,
         {
-            let timestamp = value as i64;
-            if timestamp < 0 {
+            if !value.is_finite() || value < 0.0 {
                 return Err(E::custom("invalid timestamp: must be non-negative"));
             }
+
+            // JSON timestamps are integral seconds; truncation is intended.
+            #[allow(clippy::cast_possible_truncation)]
+            let timestamp = value as i64;
 
             let datetime: DateTime<Utc> =
                 DateTime::from_timestamp(timestamp, 0).unwrap_or_else(Utc::now);

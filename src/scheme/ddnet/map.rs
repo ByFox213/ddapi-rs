@@ -29,6 +29,7 @@ pub struct Map {
 }
 
 impl Map {
+    #[must_use]
     pub fn url(&self) -> String {
         format!(
             "https://{}/maps/{}",
@@ -37,10 +38,12 @@ impl Map {
         )
     }
 
+    #[must_use]
     pub fn url_with_name(map: &str) -> String {
         format!("https://{}/maps/{}", DDNET_BASE_URL, encode(&slugify2(map)))
     }
 
+    #[must_use]
     pub fn api(map: &str) -> String {
         format!("https://{}/maps/?json={}", DDNET_BASE_URL, encode(map))
     }

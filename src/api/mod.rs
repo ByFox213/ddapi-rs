@@ -8,7 +8,7 @@ use serde::de::DeserializeOwned;
 use std::time::Duration;
 
 #[cfg(feature = "cache")]
-const DEFAULT_CACHE_TTL: Duration = Duration::from_secs(60 * 10);
+const DEFAULT_CACHE_TTL: Duration = Duration::from_mins(10);
 #[cfg(feature = "cache")]
 const DEFAULT_CACHE_CAPACITY: u64 = 10_000;
 
@@ -95,51 +95,51 @@ impl ApiCore {
         Ok(body)
     }
 
-    pub async fn _generator<T>(&self, url: &str) -> Result<T>
+    pub async fn generator<T>(&self, url: &str) -> Result<T>
     where
         T: DeserializeOwned + Send + Sync + 'static,
     {
         #[cfg(feature = "cache")]
         {
-            self._generator_cached(url).await
+            self.generator_cached(url).await
         }
         #[cfg(not(feature = "cache"))]
         {
-            self._generator_no_cache(url).await
+            self.generator_no_cache(url).await
         }
     }
 
     #[cfg(feature = "cache")]
-    async fn _generator_cached<T>(&self, url: &str) -> Result<T>
+    async fn generator_cached<T>(&self, url: &str) -> Result<T>
     where
         T: DeserializeOwned + Send + Sync + 'static,
     {
         let type_name = std::any::type_name::<T>();
-        let cache_key = format!("{}:{}", type_name, url);
+        let cache_key = format!("{type_name}:{url}");
 
         match &self.cache {
             Some(cache) => {
                 if let Some(value) = cache.get(&cache_key).await {
-                    self.parse_response::<T>(value.as_slice())
+                    Self::parse_response::<T>(value.as_slice())
                 } else {
                     let body = self.send_request(url).await?;
                     cache.insert(cache_key, body.clone()).await;
-                    self.parse_response::<T>(body.as_slice())
+                    Self::parse_response::<T>(body.as_slice())
                 }
             }
-            None => self._generator_no_cache(url).await,
+            None => self.generator_no_cache(url).await,
         }
     }
 
-    pub async fn _generator_no_cache<T>(&self, url: &str) -> Result<T>
+    pub async fn generator_no_cache<T>(&self, url: &str) -> Result<T>
     where
         T: DeserializeOwned,
     {
         let body = self.send_request(url).await?;
-        self.parse_response::<T>(body.as_slice())
+        Self::parse_response::<T>(body.as_slice())
     }
 
-    fn parse_response<T>(&self, body: &[u8]) -> Result<T>
+    fn parse_response<T>(body: &[u8]) -> Result<T>
     where
         T: DeserializeOwned,
     {
@@ -214,7 +214,7 @@ impl HasApiCore for DDApi {
 }
 
 impl DDApi {
-    /// Creates a new DDApi instance with default settings
+    /// Creates a new `DDApi` instance with default settings
     ///
     /// # Examples
     ///
@@ -223,13 +223,14 @@ impl DDApi {
     ///
     /// let api = DDApi::new();
     /// ```
+    #[must_use]
     pub fn new() -> Self {
         DDApi {
             core: ApiCore::new(),
         }
     }
 
-    /// Creates a new DDApi instance with a custom HTTP client
+    /// Creates a new `DDApi` instance with a custom HTTP client
     ///
     /// This allows you to configure your own client with custom timeouts,
     /// headers, or other settings.
@@ -250,6 +251,7 @@ impl DDApi {
     ///     .unwrap();
     /// let api = DDApi::new_with_client(client);
     /// ```
+    #[must_use]
     pub fn new_with_client(client: Client) -> Self {
         DDApi {
             core: ApiCore::new_with_client(client),
@@ -294,16 +296,20 @@ impl DDApi {
     /// # Arguments
     ///
     /// * `url` - The API endpoint URL to request
-    /// # Returns
     ///
     /// # Returns
     ///
     /// `Result<T>` containing the deserialized data on success, or an error on failure
-    pub async fn _generator<T>(&self, url: &str) -> Result<T>
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the request fails, the response is empty or has a
+    /// non-success status, or the body cannot be deserialized into `T`.
+    pub async fn generator<T>(&self, url: &str) -> Result<T>
     where
         T: DeserializeOwned + Send + Sync + 'static,
     {
-        self.core._generator(url).await
+        self.core.generator(url).await
     }
 
     /// Executes an API request without caching
@@ -321,11 +327,16 @@ impl DDApi {
     /// # Returns
     ///
     /// Returns `Result<T>` with freshly fetched deserialized data
-    pub async fn _generator_no_cache<T>(&self, url: &str) -> Result<T>
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the request fails, the response is empty or has a
+    /// non-success status, or the body cannot be deserialized into `T`.
+    pub async fn generator_no_cache<T>(&self, url: &str) -> Result<T>
     where
         T: DeserializeOwned,
     {
-        self.core._generator_no_cache(url).await
+        self.core.generator_no_cache(url).await
     }
 }
 
@@ -341,12 +352,14 @@ impl HasApiCore for DDnetClient {
 }
 
 impl DDnetClient {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             core: ApiCore::new(),
         }
     }
 
+    #[must_use]
     pub fn new_with_client(client: Client) -> Self {
         Self {
             core: ApiCore::new_with_client(client),
@@ -371,12 +384,14 @@ impl HasApiCore for DDstatsClient {
 }
 
 impl DDstatsClient {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             core: ApiCore::new(),
         }
     }
 
+    #[must_use]
     pub fn new_with_client(client: Client) -> Self {
         Self {
             core: ApiCore::new_with_client(client),

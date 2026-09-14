@@ -19,11 +19,13 @@ pub struct ReleasesMaps {
 }
 
 impl ReleasesMaps {
+    #[must_use]
     pub fn url() -> String {
-        format!("https://{}/releases", DDNET_BASE_URL)
+        format!("https://{DDNET_BASE_URL}/releases")
     }
 
+    #[must_use]
     pub fn api() -> String {
-        format!("https://{}/releases/maps.json", DDNET_BASE_URL)
+        format!("https://{DDNET_BASE_URL}/releases/maps.json")
     }
 }

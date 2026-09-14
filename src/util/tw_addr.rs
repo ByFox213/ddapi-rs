@@ -17,7 +17,7 @@ pub struct Addr {
     pub protocol: Protocol,
 }
 
-/// Supported protocol identifiers used by DDNet master responses.
+/// Supported protocol identifiers used by `DDNet` master responses.
 ///
 /// # Examples
 /// ```rust
@@ -34,6 +34,7 @@ pub enum Protocol {
 }
 
 impl Protocol {
+    #[must_use]
     pub fn as_str(&self) -> &'static str {
         match self {
             Protocol::V5 => "tw-0.5+udp",
@@ -57,6 +58,12 @@ impl std::fmt::Display for Protocol {
 }
 
 impl Protocol {
+    /// Parses a protocol identifier into a [`Protocol`].
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err` with a description if `value` is not a known protocol
+    /// identifier.
     pub fn try_from_str(value: &str) -> Result<Self, String> {
         match value {
             "tw-0.5+udp" => Ok(Protocol::V5),
@@ -73,53 +80,46 @@ impl TryFrom<&str> for Addr {
 
     fn try_from(url: &str) -> Result<Self, Self::Error> {
         let (protocol_str, host_port) = url.split_once("://").ok_or_else(|| {
-            format!(
-                "Invalid URL format, expected 'protocol://host:port', got: {}",
-                url
-            )
+            format!("Invalid URL format, expected 'protocol://host:port', got: {url}")
         })?;
 
         let protocol = Protocol::try_from_str(protocol_str)?;
 
         let (host, port_str) = if let Some(rest) = host_port.strip_prefix('[') {
             let (host, rest) = rest.split_once(']').ok_or_else(|| {
-                format!(
-                    "Invalid IPv6 format, expected '[host]:port', got: {}",
-                    host_port
-                )
+                format!("Invalid IPv6 format, expected '[host]:port', got: {host_port}")
             })?;
             let port_str = rest.strip_prefix(':').ok_or_else(|| {
-                format!(
-                    "Invalid IPv6 port format, expected ']:port', got: {}",
-                    host_port
-                )
+                format!("Invalid IPv6 port format, expected ']:port', got: {host_port}")
             })?;
             (host, port_str)
         } else {
             host_port.split_once(':').ok_or_else(|| {
-                format!(
-                    "Invalid host:port format, expected 'host:port', got: {}",
-                    host_port
-                )
+                format!("Invalid host:port format, expected 'host:port', got: {host_port}")
             })?
         };
 
         let ip: IpAddr = host
             .parse()
-            .map_err(|e| format!("Failed to parse IP '{}': {}", host, e))?;
+            .map_err(|e| format!("Failed to parse IP '{host}': {e}"))?;
 
         let port: u16 = port_str
             .parse()
-            .map_err(|e| format!("Failed to parse port '{}': {}", port_str, e))?;
+            .map_err(|e| format!("Failed to parse port '{port_str}': {e}"))?;
 
         Ok(Addr { ip, port, protocol })
     }
 }
 
 pub mod addr_serialization {
-    use super::*;
+    use super::Addr;
     use serde::{Deserialize, Deserializer, Serializer};
 
+    /// Serializes a slice of [`Addr`] as an array of `protocol://host:port` URLs.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the underlying serializer fails.
     pub fn serialize<S>(addrs: &[Addr], serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -134,6 +134,12 @@ pub mod addr_serialization {
         seq.end()
     }
 
+    /// Deserializes an array of `protocol://host:port` URLs into [`Addr`]s.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if an element is not a valid address or if the
+    /// underlying deserializer fails.
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<Addr>, D::Error>
     where
         D: Deserializer<'de>,
@@ -148,8 +154,7 @@ pub mod addr_serialization {
                 Ok(addr) => addrs.push(addr),
                 Err(e) => {
                     return Err(D::Error::custom(format!(
-                        "Failed to parse address '{}': {}",
-                        s, e
+                        "Failed to parse address '{s}': {e}"
                     )))
                 }
             }

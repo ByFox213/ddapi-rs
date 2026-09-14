@@ -27,7 +27,8 @@ pub struct DDSkins {
 }
 
 impl DDSkins {
+    #[must_use]
     pub fn api() -> String {
-        format!("https://skins.{}/skin/skins.json", DDNET_BASE_URL)
+        format!("https://skins.{DDNET_BASE_URL}/skin/skins.json")
     }
 }

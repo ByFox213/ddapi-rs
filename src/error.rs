@@ -6,7 +6,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     NotFound,
     EmptyBody,
-    /// DDStats sometimes returns `{ "error": "..." }` with HTTP 200.
+    /// `DDStats` sometimes returns `{ "error": "..." }` with HTTP 200.
     RemoteMessage(String),
     Http(reqwest::Error),
     HttpStatus {
