@@ -45,7 +45,8 @@ jobs:
           toolchain: stable
           override: true
       - run: rustup component add clippy
-      - run: RUSTFLAGS="-C target-cpu=haswell" cargo clippy --all-features -- -D warnings
+      - name: Clippy
+        run: RUSTFLAGS="-C target-cpu=haswell" cargo clippy --all-targets --all-features -- -D clippy::pedantic -D clippy::unwrap_used -D clippy::expect_used -D warnings
 
   cargo-doc:
     name: Cargo doc
