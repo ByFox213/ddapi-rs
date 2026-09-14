@@ -62,6 +62,22 @@ jobs:
       - name: Cargo doc test
         run: cargo doc --workspace --all-features
 
+  typos:
+    name: Typos
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch Repository
+        uses: actions/checkout@v6
+
+      - name: Install typos
+        uses: taiki-e/install-action@v2
+        with:
+          tool: typos
+
+      - name: Check typos
+        run: typos .
+
   check-crate-type:
     uses: ./.github/workflows/crate_type.yaml
 
