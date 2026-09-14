@@ -1,4 +1,5 @@
 use crate::scheme::DDNET_BASE_URL;
+use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -15,7 +16,7 @@ pub struct DDSkin {
     pub license: String,
     pub bodypart: String,
     pub gameversion: String,
-    pub date: String,
+    pub date: NaiveDate,
     pub skinpack: String,
     pub imgtype: String,
 }

@@ -1,6 +1,6 @@
 use crate::prelude::{encode, slugify2};
 use crate::scheme::{deserialize_datetime_timestamp, serialize_datetime_timestamp, DDNET_BASE_URL};
-use chrono::NaiveDateTime;
+use chrono::{NaiveDate, NaiveDateTime};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -145,6 +145,6 @@ pub struct DDMap {
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Activity {
-    pub date: String,
+    pub date: NaiveDate,
     pub hours_played: i64,
 }
