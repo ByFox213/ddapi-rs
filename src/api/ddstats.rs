@@ -1,6 +1,6 @@
 use crate::api::{DDApi, DDstatsClient, HasApiCore};
 use crate::error::Result;
-use crate::scheme::ddstats::{Map, Player, Profile, StatsMap};
+use crate::scheme::ddstats::{Map, Player, Profile, StatsMap, Teero};
 use std::future::Future;
 
 pub trait DDstats {
@@ -8,6 +8,7 @@ pub trait DDstats {
     fn map(&self, map: &str) -> impl Future<Output = Result<Map>> + Send;
     fn maps(&self) -> impl Future<Output = Result<Vec<StatsMap>>> + Send;
     fn profile(&self, player: &str) -> impl Future<Output = Result<Profile>> + Send;
+    fn teero(&self, player: &str) -> impl Future<Output = Result<Teero>> + Send;
 }
 
 impl DDstats for DDApi {
@@ -68,6 +69,20 @@ impl DDstats for DDApi {
     async fn profile(&self, player: &str) -> Result<Profile> {
         self.generator(&Profile::api(player)).await
     }
+
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// use ddapi_rs::prelude::*;
+    /// use ddapi_rs::prelude::ddstats::*;
+    ///
+    /// let api = DDApi::new();
+    /// let teero: Teero = api.teero("Cor").await?;
+    /// println!("{:?}", teero.most_played_maps_gametype);
+    /// ```
+    async fn teero(&self, player: &str) -> Result<Teero> {
+        self.generator(&Teero::api(player)).await
+    }
 }
 
 impl DDstats for DDstatsClient {
@@ -85,5 +100,9 @@ impl DDstats for DDstatsClient {
 
     async fn profile(&self, player: &str) -> Result<Profile> {
         self.core().generator(&Profile::api(player)).await
+    }
+
+    async fn teero(&self, player: &str) -> Result<Teero> {
+        self.core().generator(&Teero::api(player)).await
     }
 }

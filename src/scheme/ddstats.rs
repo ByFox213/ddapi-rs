@@ -268,6 +268,29 @@ pub struct MostPlayedMap {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MostPlayedMapsGametype {
+    pub map_name: String,
+    pub seconds_played: i64,
+    pub gametype: String,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Teero {
+    pub most_played_maps_gametype: Vec<MostPlayedMapsGametype>,
+}
+
+impl Teero {
+    #[must_use]
+    pub fn api(player: &str) -> String {
+        format!(
+            "https://{}/teero/json?player={}",
+            DDSTATS_BASE_URL,
+            encode(player)
+        )
+    }
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MostPlayed {
     pub key: String,
     pub seconds_played: i64,

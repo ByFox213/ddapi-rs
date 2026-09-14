@@ -100,6 +100,12 @@ async fn maps_schema_matches_live() {
 
 #[tokio::test]
 #[ignore = "requires network; run with `cargo test -- --ignored`"]
+async fn teero_schema_matches_live() {
+    check_any_player::<Teero, _>(Teero::api).await;
+}
+
+#[tokio::test]
+#[ignore = "requires network; run with `cargo test -- --ignored`"]
 async fn profile_schema_matches_live() {
     check_any_player::<Profile, _>(Profile::api).await;
 }
