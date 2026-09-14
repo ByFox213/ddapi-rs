@@ -1,6 +1,8 @@
 use crate::scheme::DDSTATS_BASE_URL;
 use crate::util::prelude::{encode, seconds_to_hours, slugify2};
+use chrono::{NaiveDate, NaiveDateTime};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Player {
@@ -30,8 +32,8 @@ pub struct Player {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CompletionProgress {
     pub category: String,
-    pub maps_finished: u64,
-    pub maps_total: u64,
+    pub maps_finished: i64,
+    pub maps_total: i64,
 }
 
 impl Player {
@@ -61,7 +63,7 @@ impl Player {
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PointsGraph {
-    pub date: String,
+    pub date: NaiveDate,
     pub points: i64,
     pub rank_points: i64,
     pub team_points: i64,
@@ -72,7 +74,7 @@ pub struct RecentFinish {
     pub map: StatsMap,
     pub name: String,
     pub time: f64,
-    pub timestamp: String,
+    pub timestamp: NaiveDateTime,
     pub server: String,
     pub cp1: f64,
     pub cp2: f64,
@@ -99,18 +101,18 @@ pub struct RecentFinish {
     pub cp23: f64,
     pub cp24: f64,
     pub cp25: f64,
-    pub rank: Option<i64>,
-    pub team_rank: Option<i64>,
+    pub team_rank: Option<TeamRankingSMap>,
+    pub rank: Option<RankingSMap>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StatsMap {
     pub map: String,
     pub server: String,
-    pub points: u8,
-    pub stars: u8,
+    pub points: i32,
+    pub stars: i32,
     pub mapper: String,
-    pub timestamp: Option<String>,
+    pub timestamp: Option<NaiveDateTime>,
 }
 
 impl StatsMap {
@@ -182,72 +184,65 @@ pub struct Finish {
     pub map: StatsMap,
     pub name: String,
     pub time: f64,
-    pub timestamp: String,
+    pub timestamp: NaiveDateTime,
     pub server: String,
-    pub rank: u64,
-    pub team_rank: Option<u64>,
-    pub seconds_played: Option<u64>,
+    pub rank: i32,
+    pub team_rank: Option<i32>,
+    pub seconds_played: Option<i32>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UnfinishedMap {
     pub map: StatsMap,
-    pub finishes: u64,
-    pub finishes_rank: Option<u64>,
+    pub finishes: Option<i32>,
+    pub finishes_rank: Option<i32>,
     pub median_time: Option<f64>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Points {
-    pub weekly_points: Option<PPoints>,
-    pub monthly_points: Option<PPoints>,
-    pub yearly_points: Option<PPoints>,
-    pub points: StatsPoints,
-    pub rank_points: StatsPoints,
-    pub team_points: StatsPoints,
+    pub weekly_points: Option<LeaderboardRank>,
+    pub monthly_points: Option<LeaderboardRank>,
+    pub yearly_points: Option<LeaderboardRank>,
+    pub points: HashMap<Category, Option<LeaderboardRank>>,
+    pub rank_points: HashMap<Category, Option<LeaderboardRank>>,
+    pub team_points: HashMap<Category, Option<LeaderboardRank>>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct PPoints {
-    pub points: i64,
-    pub rank: i64,
+#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct LeaderboardRank {
+    pub points: u64,
+    pub rank: u64,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct StatsPoints {
-    pub moderate: Option<Type>,
-    pub insane: Option<Type>,
-    pub oldschool: Option<Type>,
-    pub fun: Option<Type>,
-    pub race: Option<Type>,
-    pub total: Option<Type>,
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Category {
+    All,
+    Total,
+    Novice,
+    Moderate,
+    Brutal,
+    Insane,
+    Dummy,
     #[serde(rename = "DDmaX.Easy")]
-    pub ddmax_easy: Option<Type>,
-    pub novice: Option<Type>,
-    pub dummy: Option<Type>,
-    #[serde(rename = "DDmaX.Pro")]
-    pub ddmax_pro: Option<Type>,
-    pub brutal: Option<Type>,
-    #[serde(rename = "DDmaX.Nut")]
-    pub ddmax_nut: Option<Type>,
-    pub solo: Option<Type>,
+    DDmaXEasy,
     #[serde(rename = "DDmaX.Next")]
-    pub ddmax_next: Option<Type>,
-    #[serde(rename = "Event")]
-    pub event: Option<Type>,
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Type {
-    pub points: i64,
-    pub rank: i64,
+    DDmaXNext,
+    #[serde(rename = "DDmaX.Pro")]
+    DDmaXPro,
+    #[serde(rename = "DDmaX.Nut")]
+    DDmaXNut,
+    Oldschool,
+    Solo,
+    Race,
+    Fun,
+    Event,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RecentActivity {
     pub name: String,
-    pub date: String,
+    pub date: NaiveDate,
     pub map_name: String,
     pub map: Option<StatsMap>,
     pub seconds_played: i64,
@@ -258,45 +253,45 @@ pub struct RecentPlayerInfo {
     pub name: String,
     pub clan: String,
     pub country: i32,
-    pub skin_name: Option<String>,
-    pub skin_color_body: Option<u64>,
-    pub skin_color_feet: Option<u64>,
-    pub last_seen: String,
-    pub seconds_played: u64,
+    pub skin_name: String,
+    pub skin_color_body: Option<i32>,
+    pub skin_color_feet: Option<i32>,
+    pub last_seen: NaiveDate,
+    pub seconds_played: i64,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MostPlayedMap {
     pub map_name: String,
-    pub seconds_played: u64,
+    pub seconds_played: i64,
     pub map: Option<StatsMap>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MostPlayed {
     pub key: String,
-    pub seconds_played: u64,
+    pub seconds_played: i64,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PlaytimePerMonth {
     pub year_month: String,
     pub month: String,
-    pub seconds_played: u64,
+    pub seconds_played: i64,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GeneralActivity {
-    pub total_seconds_played: u64,
-    pub start_of_playtime: String,
-    pub average_seconds_played: u64,
+    pub total_seconds_played: i64,
+    pub start_of_playtime: NaiveDate,
+    pub average_seconds_played: i64,
 }
 
 impl GeneralActivity {
     #[must_use]
     pub fn total_seconds_played_to_hours(&self) -> f64 {
-        // Seconds below 2^53 (≈285M years) convert losslessly; playtime is
-        // nowhere near that, so the cast is safe.
+        // Seconds below 2^53 convert losslessly; playtime is nowhere near
+        // that, so the cast is safe.
         #[allow(clippy::cast_precision_loss)]
         let seconds = self.total_seconds_played as f64;
         seconds_to_hours(seconds)
@@ -313,7 +308,7 @@ impl GeneralActivity {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct FavouriteRank1sTeammates {
     pub name: String,
-    pub ranks_together: u64,
+    pub ranks_together: i64,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -321,8 +316,8 @@ pub struct AllTop10 {
     pub map: StatsMap,
     pub name: String,
     pub time: f64,
-    pub rank: u64,
-    pub team_rank: Option<u64>,
+    pub rank: i32,
+    pub team_rank: Option<i32>,
     pub team_time: Option<f64>,
 }
 
@@ -331,25 +326,25 @@ pub struct RecentTop10 {
     pub rank_type: String,
     pub map: String,
     pub time: f64,
-    pub rank: u64,
-    pub timestamp: String,
+    pub rank: i32,
+    pub timestamp: NaiveDateTime,
     pub server: String,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct InfoSMap {
     pub map: StatsMap,
-    pub finishes: u64,
-    pub finishes_rank: u64,
-    pub median_time: f64,
-    pub total_playtime: u64,
-    pub total_playtime_rank: u64,
+    pub finishes: Option<i32>,
+    pub finishes_rank: Option<i32>,
+    pub median_time: Option<f64>,
+    pub total_playtime: Option<i64>,
+    pub total_playtime_rank: Option<i64>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RankingSMap {
-    pub rank: u64,
-    pub timestamp: Option<String>,
+    pub rank: i32,
+    pub timestamp: Option<NaiveDateTime>,
     pub name: String,
     pub time: f64,
     pub map: String,
@@ -358,9 +353,9 @@ pub struct RankingSMap {
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TeamRankingSMap {
-    pub rank: u64,
-    pub timestamp: Option<String>,
-    pub id: Vec<u64>,
+    pub rank: i32,
+    pub timestamp: Option<NaiveDateTime>,
+    pub id: Vec<u8>,
     pub players: Vec<String>,
     pub time: f64,
     pub map: String,
@@ -400,9 +395,9 @@ pub struct TimeCpsSMap {
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PlaytimeSMap {
-    pub rank: u64,
+    pub rank: i64,
     pub name: String,
-    pub seconds_played: u64,
+    pub seconds_played: i64,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
