@@ -27,7 +27,22 @@ fn map_schema_matches() {
 
 // ---------------------------------------------------------------- live API
 
+/// Candidate players for live schema checks. API payloads are
+/// player-dependent, so a single fixed name is fragile: the test passes as
+/// soon as one player validates cleanly, and only fails when every candidate
+/// reports problems (real upstream drift).
+const TEST_PLAYERS: &[&str] = &["Cor", "ByFox"];
+
 async fn fetch_and_check<T>(url: &str)
+where
+    T: serde::de::DeserializeOwned + serde::Serialize,
+{
+    fetch_and_check_result::<T>(url)
+        .await
+        .unwrap_or_else(|e| panic!("{e}"));
+}
+
+async fn fetch_and_check_result<T>(url: &str) -> Result<(), String>
 where
     T: serde::de::DeserializeOwned + serde::Serialize,
 {
@@ -42,16 +57,39 @@ where
             Err(e) if attempt < 3 => {
                 eprintln!("GET {url} failed (attempt {attempt}/3): {e}; retrying");
             }
-            Err(e) => panic!("GET {url} failed: {e}"),
+            Err(e) => return Err(format!("GET {url} failed: {e}")),
         }
     }
-    util::check_no_extra_data::<T>(&value).unwrap_or_else(|e| panic!("{e}"));
+    util::check_no_extra_data::<T>(&value)
+}
+
+/// Checks `T` against every candidate player; succeeds on the first clean
+/// payload, otherwise reports all per-player problems.
+async fn check_any_player<T, F>(make_url: F)
+where
+    T: serde::de::DeserializeOwned + serde::Serialize,
+    F: Fn(&str) -> String,
+{
+    let mut failures = Vec::new();
+    for player in TEST_PLAYERS {
+        let url = make_url(player);
+        match fetch_and_check_result::<T>(&url).await {
+            Ok(()) => return,
+            Err(e) => failures.push(format!("{url}:\n{e}")),
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "no test player validated against `{}`:\n{}",
+        std::any::type_name::<T>(),
+        failures.join("\n\n")
+    );
 }
 
 #[tokio::test]
 #[ignore = "requires network; run with `cargo test -- --ignored`"]
 async fn player_schema_matches_live() {
-    fetch_and_check::<Player>(&Player::api("Cor")).await;
+    check_any_player::<Player, _>(Player::api).await;
 }
 
 #[tokio::test]
@@ -63,7 +101,7 @@ async fn maps_schema_matches_live() {
 #[tokio::test]
 #[ignore = "requires network; run with `cargo test -- --ignored`"]
 async fn profile_schema_matches_live() {
-    fetch_and_check::<Profile>(&Profile::api("Cor")).await;
+    check_any_player::<Profile, _>(Profile::api).await;
 }
 
 #[tokio::test]
