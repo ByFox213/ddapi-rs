@@ -8,6 +8,26 @@ fn default_location() -> String {
     "unknown".to_string()
 }
 
+/// The API sends `country` as a string on some servers and as an integer on
+/// others; accept both and normalize to a string.
+fn deserialize_optional_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use serde::de::Error;
+    let value = Option::<serde_json::Value>::deserialize(deserializer)?;
+    Ok(match value {
+        None => None,
+        Some(serde_json::Value::String(s)) => Some(s),
+        Some(serde_json::Value::Number(n)) => Some(n.to_string()),
+        Some(other) => {
+            return Err(D::Error::custom(format!(
+                "expected string or number for country, got `{other}`"
+            )))
+        }
+    })
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum MasterServer {
     One = 1,
@@ -17,10 +37,12 @@ pub enum MasterServer {
 }
 
 impl MasterServer {
+    #[must_use]
     pub fn get_index(&self) -> i32 {
         *self as i32
     }
 
+    #[must_use]
     pub fn api(&self) -> String {
         format!(
             "https://master{}.{}/ddnet/15/servers.json",
@@ -59,18 +81,22 @@ pub struct Icon {
 }
 
 impl Master {
+    #[must_use]
     pub fn api(master: MasterServer) -> String {
         master.api()
     }
 
+    #[must_use]
     pub fn count_clients(&self) -> usize {
         self.servers.iter().map(|s| s.info.clients.len()).sum()
     }
 
+    #[must_use]
     pub fn get_clans(&self) -> Vec<ClanCount> {
         self.get_filtered_clans(None)
     }
 
+    #[must_use]
     pub fn get_filtered_clans(&self, filters: Option<Vec<&str>>) -> Vec<ClanCount> {
         if self.servers.is_empty() {
             return Vec::new();
@@ -109,10 +135,12 @@ pub struct Server {
 }
 
 impl Server {
+    #[must_use]
     pub fn count_client(&self) -> usize {
         self.info.clients.len()
     }
 
+    #[must_use]
     pub fn ipv4_addresses(&self) -> Vec<&Addr> {
         self.addresses
             .iter()
@@ -120,6 +148,7 @@ impl Server {
             .collect()
     }
 
+    #[must_use]
     pub fn ipv6_addresses(&self) -> Vec<&Addr> {
         self.addresses
             .iter()
@@ -127,6 +156,7 @@ impl Server {
             .collect()
     }
 
+    #[must_use]
     pub fn addresses_by_protocol(&self, protocol: Protocol) -> Vec<&Addr> {
         self.addresses
             .iter()
@@ -150,6 +180,16 @@ pub struct Info {
     pub clients: Vec<Client>,
     #[serde(default)]
     pub requires_login: bool,
+    #[serde(default)]
+    pub client_score_kind: Option<String>,
+    #[serde(default, deserialize_with = "deserialize_optional_string")]
+    pub country: Option<String>,
+    #[serde(default)]
+    pub flags: Option<Vec<String>>,
+    #[serde(default)]
+    pub flag: Option<i64>,
+    #[serde(default)]
+    pub identity_key: Option<String>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -157,6 +197,10 @@ pub struct IMap {
     pub name: String,
     pub sha256: Option<String>,
     pub size: Option<i64>,
+    #[serde(default)]
+    pub url: Option<String>,
+    #[serde(default, deserialize_with = "deserialize_optional_string")]
+    pub tw_crc: Option<String>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -179,4 +223,23 @@ pub struct Skin {
     pub name: Option<String>,
     pub color_body: Option<i64>,
     pub color_feet: Option<i64>,
+    #[serde(default)]
+    pub body: Option<SkinPart>,
+    #[serde(default)]
+    pub marking: Option<SkinPart>,
+    #[serde(default)]
+    pub decoration: Option<SkinPart>,
+    #[serde(default)]
+    pub eyes: Option<SkinPart>,
+    #[serde(default)]
+    pub feet: Option<SkinPart>,
+    #[serde(default)]
+    pub hands: Option<SkinPart>,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SkinPart {
+    pub name: String,
+    #[serde(default)]
+    pub color: Option<i64>,
 }

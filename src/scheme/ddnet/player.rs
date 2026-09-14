@@ -24,6 +24,7 @@ pub struct Player {
 }
 
 impl Player {
+    #[must_use]
     pub fn url(&self) -> String {
         format!(
             "https://{}/players/{}",
@@ -32,6 +33,7 @@ impl Player {
         )
     }
 
+    #[must_use]
     pub fn url_with_name(player: &str) -> String {
         format!(
             "https://{}/players/{}",
@@ -40,6 +42,7 @@ impl Player {
         )
     }
 
+    #[must_use]
     pub fn api(player: &str) -> String {
         format!(
             "https://{}/players/?json2={}",
@@ -118,6 +121,7 @@ pub struct Types {
     pub solo: Type,
     pub race: Type,
     pub fun: Type,
+    pub event: Type,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
