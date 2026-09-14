@@ -99,6 +99,8 @@ pub struct RecentFinish {
     pub cp23: f64,
     pub cp24: f64,
     pub cp25: f64,
+    pub rank: Option<i64>,
+    pub team_rank: Option<i64>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -232,6 +234,8 @@ pub struct StatsPoints {
     pub solo: Option<Type>,
     #[serde(rename = "DDmaX.Next")]
     pub ddmax_next: Option<Type>,
+    #[serde(rename = "Event")]
+    pub event: Option<Type>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]

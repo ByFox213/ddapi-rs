@@ -51,7 +51,7 @@ where
 #[tokio::test]
 #[ignore = "requires network; run with `cargo test -- --ignored`"]
 async fn player_schema_matches_live() {
-    fetch_and_check::<Player>(&Player::api("nameless tee")).await;
+    fetch_and_check::<Player>(&Player::api("Cor")).await;
 }
 
 #[tokio::test]
@@ -63,7 +63,7 @@ async fn maps_schema_matches_live() {
 #[tokio::test]
 #[ignore = "requires network; run with `cargo test -- --ignored`"]
 async fn profile_schema_matches_live() {
-    fetch_and_check::<Profile>(&Profile::api("nameless tee")).await;
+    fetch_and_check::<Profile>(&Profile::api("Cor")).await;
 }
 
 #[tokio::test]
