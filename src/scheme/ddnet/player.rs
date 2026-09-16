@@ -18,6 +18,8 @@ pub struct Player {
     pub last_finishes: Vec<LastFinish>,
     #[serde(default)]
     pub favorite_partners: Vec<FavoritePartner>,
+    #[serde(default)]
+    pub deleted_ranks: Vec<DeletedRank>,
     pub types: Types,
     pub activity: Vec<Activity>,
     pub hours_played_past_365_days: i64,
@@ -99,6 +101,23 @@ pub struct LastFinish {
 pub struct FavoritePartner {
     pub name: String,
     pub finishes: i64,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct DeletedRank {
+    pub map: String,
+    pub time: f64,
+    #[serde(
+        serialize_with = "serialize_datetime_timestamp",
+        deserialize_with = "deserialize_datetime_timestamp"
+    )]
+    pub timestamp: NaiveDateTime,
+    pub country: String,
+    #[serde(
+        serialize_with = "serialize_datetime_timestamp",
+        deserialize_with = "deserialize_datetime_timestamp"
+    )]
+    pub deleted_at: NaiveDateTime,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
