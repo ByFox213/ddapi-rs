@@ -5,6 +5,7 @@ A small async Rust library for working with the DDNet and DDStats public APIs.
 
 - Crates.io: https://crates.io/crates/ddapi-rs
 - Docs.rs: https://docs.rs/ddapi-rs
+- PyPI: https://pypi.org/project/ddapi
 
 Features
 --------
@@ -128,4 +129,64 @@ fn main() {
 
     let _api = DDApi::new_with_client(client);
 }
+```
+
+Python (PyPI package `ddapi`)
+=============================
+
+```bash
+pip install ddapi
+```
+
+The Python package mirrors the Rust API. All methods are async and return
+typed dataclasses (`ddapi.ddnet.*` / `ddapi.ddstats.*`) instead of raw dicts.
+Fields that may be absent in the API response are `None`.
+
+```python
+import asyncio
+
+import ddapi
+
+
+async def main():
+    api = ddapi.DDApi()
+
+    # ddnet: player points
+    player = await api.player("nameless tee")
+    print(player.player, player.points.points)  # fields, not dict keys
+
+    # optional data is None - no KeyError
+    if player.team_rank is not None:
+        print(player.team_rank.rank)
+
+    # ddstats: profile info
+    stats = ddapi.DDstatsClient()
+    profile = await stats.profile("ByFox")
+    print(profile.name, profile.clan)
+
+
+asyncio.run(main())
+```
+
+Exposed API:
+
+- `DDApi` - combined client (DDNet methods take precedence)
+- `DDnetClient` - DDNet API only: `master`, `custom_master`, `skins`,
+  `player`, `query`, `query_map`, `query_mapper`, `map`, `releases_map`,
+  `status`, `latest_finish`, `latest_finish_with_latest`
+- `DDstatsClient` - DDStats API only: `player`, `map`, `maps`, `profile`,
+  `teero`
+- `ddapi.ddnet` / `ddapi.ddstats` - dataclass models (e.g. `ddapi.ddnet.Player`)
+- `DDError` - exception raised on API errors
+- `__version__` - matches the Rust crate version
+
+Notes:
+
+- `custom_master` takes a master server index (`1`-`4`).
+- Timestamps arrive as `datetime` (UTC); dates as `date`.
+- Optional per-client in-memory cache:
+
+```python
+api = ddapi.DDApi()
+api.set_cache(10_000, 600)  # capacity, ttl in seconds
 ```

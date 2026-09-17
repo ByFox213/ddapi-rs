@@ -1,0 +1,32 @@
+[build-system]
+requires = ["maturin>=1.7,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "ddapi"
+description = "Async Python bindings for the DDNet and DDStats APIs (Teeworlds)"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+authors = [
+    { name = "ByFox213", email = "byfox213@gmail.com" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+keywords = ["ddnet", "ddstats", "teeworlds", "api", "ddapi"]
+dynamic = ["version"]
+
+[project.urls]
+Repository = "https://github.com/ByFox213/ddapi-rs"
+
+[dependency-groups]
+dev = ["pytest"]
+
+[tool.maturin]
+module-name = "ddapi._ddapi"
+python-source = "python"
+features = ["python", "full"]

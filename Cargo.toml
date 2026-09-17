@@ -6,9 +6,11 @@ authors = ["ByFox213 <byfox213@gmail.com>"]
 edition = "2021"
 repository = "https://github.com/ByFox213/ddapi-rs"
 license = "MIT"
-readme = "README.md"
 keywords = ["ddnet", "ddstats", "teeworlds", "api"]
-exclude = [".ai"]
+exclude = ["./.ai", "./python", "./pyproject.toml", "*.so", "*.pyd", "*.dylib"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 tokio = "1.48.0"
@@ -17,6 +19,8 @@ serde = { version = "1.0.215", features = ["derive"] }
 serde_json = "1.0.149"
 chrono = { version = "0.4.43", features = ["serde"] }
 moka = { version = "0.12.13", features = ["log", "future"], optional = true }
+pyo3 = { version = "0.20.3", optional = true }
+pyo3-asyncio = { version = "0.20.0", optional = true }
 
 [dev-dependencies]
 tokio = { version = "1.49.0", features = ["macros"] }
@@ -27,6 +31,13 @@ ddnet = []
 ddstats = []
 cache = ["dep:moka"]
 full = ["ddnet", "ddstats", "cache"]
+python = [
+    "dep:pyo3",
+    "dep:pyo3-asyncio",
+    "pyo3/abi3-py38",
+    "pyo3/extension-module",
+    "pyo3-asyncio/tokio-runtime",
+]
 
 [package.metadata.docs.rs]
 all-features = true

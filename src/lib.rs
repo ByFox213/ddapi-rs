@@ -3,6 +3,9 @@ mod error;
 mod scheme;
 mod util;
 
+#[cfg(feature = "python")]
+pub mod python;
+
 pub mod prelude {
     pub use crate::api::DDApi;
     pub use crate::api::{DDnetClient, DDstatsClient};
