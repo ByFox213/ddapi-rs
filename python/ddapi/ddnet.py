@@ -43,6 +43,11 @@ class Server:
 
 
 @dataclass
+class Experimental:
+    transports: Optional[str]
+
+
+@dataclass
 class Info:
     max_clients: int
     max_players: int
@@ -58,6 +63,7 @@ class Info:
     flags: Optional[List[str]]
     flag: Optional[int]
     identity_key: Optional[str]
+    experimental: Optional["Experimental"]
 
 
 @dataclass
@@ -358,5 +364,6 @@ class LatestFinishes:
     timestamp: datetime
     map: str
     name: str
+    visible_name: str
     time: float
     server: str

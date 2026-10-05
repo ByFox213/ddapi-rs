@@ -12,6 +12,7 @@ pub struct LatestFinishes {
     pub timestamp: NaiveDateTime,
     pub map: String,
     pub name: String,
+    pub visible_name: String,
     pub time: f64,
     pub server: String,
 }

@@ -165,31 +165,46 @@ impl Server {
     }
 }
 
+/// Extra/experimental transport descriptors a server may advertise (e.g.
+/// `transports: "quic|spki-sha256=...|capabilities=..."`). Kept permissive so
+/// new transport metadata does not break parsing.
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Experimental {
+    #[serde(default)]
+    pub transports: Option<String>,
+}
+
+/// A game server's self-reported info.
+///
+/// Almost everything is defaulted: the info object is "user input" written by
+/// the game server, and a few servers send incomplete or oddly-wrapped
+/// payloads (e.g. a single unknown key instead of the known fields). Unknown
+/// keys are preserved in [`Info::extra`] so such payloads still round-trip
+/// instead of being dropped — dropping a server would shift the
+/// position-based schema comparison.
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
 pub struct Info {
     pub max_clients: i64,
     pub max_players: i64,
-    #[serde(default)]
     pub passworded: bool,
     #[serde(rename = "game_type")]
     pub gametype: String,
     pub name: String,
     pub map: IMap,
     pub version: String,
-    #[serde(default)]
     pub clients: Vec<Client>,
-    #[serde(default)]
     pub requires_login: bool,
-    #[serde(default)]
     pub client_score_kind: Option<String>,
-    #[serde(default, deserialize_with = "deserialize_optional_string")]
+    #[serde(deserialize_with = "deserialize_optional_string")]
     pub country: Option<String>,
-    #[serde(default)]
     pub flags: Option<Vec<String>>,
-    #[serde(default)]
     pub flag: Option<i64>,
-    #[serde(default)]
     pub identity_key: Option<String>,
+    pub experimental: Option<Experimental>,
+    /// Keys the library does not model yet, kept verbatim.
+    #[serde(flatten)]
+    pub extra: serde_json::Map<String, serde_json::Value>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
