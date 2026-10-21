@@ -37,6 +37,12 @@ fn query_map_schema_matches() {
 }
 
 #[test]
+fn query_map_without_mapper_matches() {
+    let raw = r#"[{"name": "1TeeMap", "type": "Oldschool"}]"#;
+    assert_schema_matches::<Vec<QueryMap>>(raw);
+}
+
+#[test]
 fn query_mapper_schema_matches() {
     assert_schema_matches::<Vec<QueryMapper>>(&load_fixture("ddnet/query_mapper.json"));
 }

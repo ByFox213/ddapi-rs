@@ -119,7 +119,7 @@ impl DDnetApi for DDApi {
     /// let api = DDApi::new();
     /// let query: Vec<QueryMap> = api.query_map("multi").await?;
     /// for map in &query {
-    ///     println!("{}: {} | {}", map.name, map.mapper, map.r#type);
+    ///     println!("{}: {} | {}", map.name, map.mapper.as_deref().unwrap_or(""), map.r#type);
     /// }
     /// ```
     async fn query_map(&self, map: &str) -> Result<Vec<QueryMap>> {
